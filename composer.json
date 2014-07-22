@@ -1,0 +1,30 @@
+{
+    "name": "Cyberrebell/ZF2DoctrineCrudHandler",
+    "description": "CrudHandler for Zend Framework 2 using Doctrine-Module",
+    "authors": [
+        {
+            "name": "Cyberrebell",
+            "email": "chainsaw75@web.de"
+        }
+    ],
+    "type": "library",
+    "keywords": [
+        "zf2",
+        "zend",
+        "doctrine",
+        "crud"
+    ],
+    "homepage": "https://github.com/Cyberrebell/ZF2DoctrineCrudHandler",
+    "license": "GPL-3.0",
+    "require": {
+        "php": ">=5.4.4",
+        "zendframework/zendframework": ">=2.3.0",
+        "doctrine/doctrine-orm-module": "0.8.*",
+        "Cyberrebell/ZF2ValidatorBuilder": "dev-master"
+    },
+    "autoload": {
+        "psr-0": {
+            "ZF2DoctrineCrudHandler\\": "library/"
+        }
+    }
+}

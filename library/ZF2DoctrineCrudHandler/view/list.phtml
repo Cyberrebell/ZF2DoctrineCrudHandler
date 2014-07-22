@@ -1,0 +1,37 @@
+<h2><?php echo $this->translate('list ' . $title); ?></h2>
+<table class="crud-list">
+    <thead>
+        <tr>
+            <?php foreach (array_keys($entityProperties) as $propertyName): ?>
+            <th>
+                <?php echo $this->translate($propertyName); ?>
+            </th>
+            <?php endforeach; ?>
+            <th>
+                <?php foreach ($listHeadIcons as $icon => $ref): ?>
+                    <a href="<?php echo $ref; ?>">
+                        <img class="<?php echo $icon; ?>-icon crudlist-icon">
+                    </a>
+                <?php endforeach; ?>
+            </th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($entities as $entity): ?>
+        <tr>
+            <?php foreach ($entityProperties as $entityProperty): ?>
+            <td>
+                <?php echo $entityProperty($this, $entity); ?>
+            </td>
+            <?php endforeach; ?>
+            <td>
+                <?php foreach (array_reverse($listIcons) as $icon => $ref): ?>
+                    <a href="<?php echo $ref . '/' . $entity->getId(); ?>">
+                        <img class="<?php echo $icon; ?>-icon crudlist-icon">
+                    </a>
+                <?php endforeach; ?>
+            </td>
+        </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
