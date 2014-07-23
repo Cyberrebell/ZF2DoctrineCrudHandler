@@ -6,7 +6,7 @@ use Zend\View\Model\ViewModel;
 
 class AddViewHandler extends AbstractFormViewHandler
 {
-    const DEFAULT_TEMPLATE = 'portalbasics/crudlist/add.phtml';
+    const DEFAULT_TEMPLATE = 'zf2doctrinecrudhandler/add.phtml';
     
     /**
      * (non-PHPdoc)

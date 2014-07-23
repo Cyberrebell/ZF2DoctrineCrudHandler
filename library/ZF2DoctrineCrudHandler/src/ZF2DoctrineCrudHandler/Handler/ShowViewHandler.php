@@ -6,7 +6,7 @@ use Zend\View\Model\ViewModel;
 
 class ShowViewHandler extends AbstractCrudHandler
 {
-    const DEFAULT_TEMPLATE = 'portalbasics/crudlist/show.phtml';
+    const DEFAULT_TEMPLATE = 'zf2doctrinecrudhandler/show.phtml';
     
     protected $entityId;
     protected $propertyBlacklist = [];

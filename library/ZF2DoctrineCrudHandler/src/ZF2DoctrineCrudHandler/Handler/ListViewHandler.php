@@ -6,7 +6,7 @@ use Zend\View\Model\ViewModel;
 
 class ListViewHandler extends AbstractCrudHandler
 {
-    const DEFAULT_TEMPLATE = 'portalbasics/crudlist/list.phtml';
+    const DEFAULT_TEMPLATE = 'zf2doctrinecrudhandler/list.phtml';
     
     /**
      * @var array

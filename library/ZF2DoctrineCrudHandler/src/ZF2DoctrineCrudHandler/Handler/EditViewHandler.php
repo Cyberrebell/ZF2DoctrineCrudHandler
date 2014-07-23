@@ -6,7 +6,7 @@ use Zend\View\Model\ViewModel;
 
 class EditViewHandler extends AbstractFormViewHandler
 {
-    const DEFAULT_TEMPLATE = 'portalbasics/crudlist/edit.phtml';
+    const DEFAULT_TEMPLATE = 'zf2doctrinecrudhandler/edit.phtml';
     
     protected $entityId;
     
