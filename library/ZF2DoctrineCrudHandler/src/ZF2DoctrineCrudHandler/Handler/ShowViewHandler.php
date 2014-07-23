@@ -55,6 +55,7 @@ class ShowViewHandler extends AbstractCrudHandler
                         if (is_object($result)) {
                             $annotations = $this->getAnnotationReader()->getPropertyAnnotations($property);
                             $targetEntityNamespace = false;
+                            $multipleResult = false;
                             foreach ($annotations as $annotation) {
                                 $className = get_class($annotation);
                                 if ($className == 'Doctrine\ORM\Mapping\OneToOne'
@@ -63,12 +64,23 @@ class ShowViewHandler extends AbstractCrudHandler
                                     || $className == 'Doctrine\ORM\Mapping\OneToMany')
                                 {
                                     $targetEntityNamespace = $annotation->targetEntity;
+                                    if ($className == 'Doctrine\ORM\Mapping\ManyToMany' || $className == 'Doctrine\ORM\Mapping\OneToMany') {
+                                        $multipleResult = true;
+                                    }
                                 }
                             }
                             if ($targetEntityNamespace) {
                                 $identifyer = $targetEntityNamespace::DISPLAY_NAME_PROPERTY;
                                 $identifyGetter = 'get' . ucfirst($identifyer);
-                                $result = $result->$identifyGetter();
+                                if ($multipleResult) {
+                                    $str = '';
+                                    foreach ($result as $entity) {
+                                        $str .= $entity->$identifyGetter() . ',';
+                                    }
+                                    $result = substr($str, 0, -1);
+                                } else {
+                                    $result = $result->$identifyGetter();
+                                }
                             } else {
                                 throw new \Exception('Entity "' . $this->entityNamespace . '" has no targetEntity at "' . $property->name . '" property!');
                             }
