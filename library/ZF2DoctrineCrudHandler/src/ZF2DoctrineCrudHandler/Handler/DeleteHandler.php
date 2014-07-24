@@ -3,29 +3,32 @@
 namespace ZF2DoctrineCrudHandler\Handler;
 
 use Zend\View\Model\ViewModel;
+use ZF2DoctrineCrudHandler\Request\RequestHandler;
 
 class DeleteHandler extends AbstractCrudHandler
 {
     protected $entityId;
     
-    function getViewModel() {
-        if ($this->entityId) {
-            $entity = $this->objectManager->getRepository($this->entityNamespace)->find($this->entityId);
-            if ($entity === NULL) { //check if entity with requested id exists
-                $this->render404();
-            } else {
-                $this->objectManager->remove($entity);
-                $this->objectManager->flush();
-                return true;
-            }
-        } else {
-            $this->render404();
-        }
+    /**
+     * @param \Doctrine\Common\Persistence\ObjectManager $objectManager
+     * @param string $entityNamespace
+     */
+    function __construct(\Doctrine\Common\Persistence\ObjectManager $objectManager, $entityNamespace){
+        $this->objectManager = $objectManager;
+        $this->entityNamespace = $entityNamespace;
     }
     
+    /**
+     * @param int $id
+     * @return \ZF2DoctrineCrudHandler\Handler\EditHandler
+     */
     function setEntityId($id) {
         $this->entityId = $id;
-        
+    
         return $this;
+    }
+    
+    function getViewModel() {
+        RequestHandler::handleDelete($this->objectManager, $this->entityNamespace, $this->entityId);
     }
 }

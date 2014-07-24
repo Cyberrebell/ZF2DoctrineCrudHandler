@@ -15,7 +15,6 @@ use Zend\Form\Element\Text;
 use Zend\Form\Element\Email;
 use Zend\Form\Element\Password;
 use Zend\Form\Element\Select;
-use ZF2DoctrineCrudHandler;
 
 /**
  * Generates Form
@@ -117,16 +116,21 @@ class FormGenerator
             }
         }
         
+        $submit = new Submit('save');
+        $submit->setValue('save');
+        $form->add($submit);
+        
         return $form;
     }
     
     /**
      * Adds a property depending column-element to the form
      * @param \Zend\Form\Form $form
-     * @param \ZF2DoctrineCrudHandler\Annotation\Property $property
+     * @param \ZF2DoctrineCrudHandler\Reader\Property $property
      */
-    protected function addColumnElementToForm(\Zend\Form\Form $form, \ZF2DoctrineCrudHandler\Annotation\Property $property) {
+    protected function addColumnElementToForm(\Zend\Form\Form $form, \ZF2DoctrineCrudHandler\Reader\Property $property) {
         $annotationType = $property->getAnnotation()->type;
+        $label = $property->getName();
         switch ($annotationType) {
         	case 'datetime':
         	    $element = new DateTime($property->getName());
@@ -159,16 +163,16 @@ class FormGenerator
     	        break;
         }
         
-        $element->setLabel($property->getName());
+        $element->setLabel($label);
         $form->add($element);
     }
     
     /**
      * Adds a property depending single-selecter-element to the form
      * @param \Zend\Form\Form $form
-     * @param \ZF2DoctrineCrudHandler\Annotation\Property $property
+     * @param \ZF2DoctrineCrudHandler\Reader\Property $property
      */
-    protected function addSingleSelecterElementToForm(\Zend\Form\Form $form, \ZF2DoctrineCrudHandler\Annotation\Property $property) {
+    protected function addSingleSelecterElementToForm(\Zend\Form\Form $form, \ZF2DoctrineCrudHandler\Reader\Property $property) {
         $element = new Select($property->getName());
         
         $options = $this->getValueOptionsFromEntity($property->getTargetEntity());
@@ -181,9 +185,9 @@ class FormGenerator
     /**
      * Adds a property depending multi-selecter-element to the form
      * @param \Zend\Form\Form $form
-     * @param \ZF2DoctrineCrudHandler\Annotation\Property $property
+     * @param \ZF2DoctrineCrudHandler\Reader\Property $property
      */
-    protected function addMultiSelecterElementToForm(\Zend\Form\Form $form, \ZF2DoctrineCrudHandler\Annotation\Property $property) {
+    protected function addMultiSelecterElementToForm(\Zend\Form\Form $form, \ZF2DoctrineCrudHandler\Reader\Property $property) {
         $element = new Select($property->getName());
         $element->setAttribute('multiple', true);
         

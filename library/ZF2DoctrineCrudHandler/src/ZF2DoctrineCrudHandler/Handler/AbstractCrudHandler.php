@@ -39,6 +39,16 @@ abstract class AbstractCrudHandler
     protected $title;
     
     /**
+     * @var array:string
+     */
+    protected $propertyBlacklist = [];
+    
+    /**
+     * @var array:string
+     */
+    protected $propertyWhitelist = [];
+    
+    /**
      * function($entity){ ... } //return true to pass entity
      * @var \Closure
      */
@@ -79,6 +89,28 @@ abstract class AbstractCrudHandler
     function setTitle($title) {
         $this->title = $title;
         
+        return $this;
+    }
+    
+    /**
+     * Blacklist Entity properties like this: ['name', 'password']
+     * @param array $blacklist
+     * @return \ZF2DoctrineCrudHandler\Handler\AbstractCrudHandler
+     */
+    function setPropertyBlacklist(array $blacklist) {
+        $this->propertyBlacklist = $blacklist;
+    
+        return $this;
+    }
+    
+    /**
+     * Whitelist Entity properties like this: ['name', 'password']
+     * @param array $whitelist
+     * @return \ZF2DoctrineCrudHandler\Handler\AbstractCrudHandler
+     */
+    function setPropertyWhitelist(array $whitelist) {
+        $this->propertyWhitelist = $whitelist;
+    
         return $this;
     }
     

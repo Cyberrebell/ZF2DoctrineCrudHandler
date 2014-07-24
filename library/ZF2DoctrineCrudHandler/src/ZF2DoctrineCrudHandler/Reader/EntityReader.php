@@ -20,7 +20,10 @@ class EntityReader
         
         $properties = [];
         foreach ($reflectionProperties as $reflectionProperty) {
-            $properties[] = $this->createProperty($reflectionProperty);
+            $property = self::createProperty($reflectionProperty);
+            if ($property) {
+                $properties[$property->getName()] = $property;
+            }
         }
         return $properties;
     }
@@ -38,7 +41,9 @@ class EntityReader
         $annotations = $annotationReader->getPropertyAnnotations($reflectionProperty);
         foreach ($annotations as $annotation) {
             $annotationClassName = get_class($annotation);
-            if ($annotationClassName == 'Doctrine\ORM\Mapping\Column') {
+            if ($annotationClassName == 'Doctrine\ORM\Mapping\Id') {
+                return false;
+            } else if ($annotationClassName == 'Doctrine\ORM\Mapping\Column') {
                 $property->setAnnotation($annotation);
                 $property->setType(Property::PROPERTY_TYPE_COLUMN);
             } else if ($annotationClassName == 'Doctrine\ORM\Mapping\ManyToOne' || $annotationClassName == 'Doctrine\ORM\Mapping\OneToOne') {
