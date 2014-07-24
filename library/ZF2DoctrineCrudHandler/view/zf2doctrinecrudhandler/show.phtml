@@ -1,6 +1,9 @@
 <h2><?php echo $this->translate('show ' . $title); ?></h2>
 <?php foreach ($dataToDisplay as $label => $data): ?>
 <div>
-    <p><?php echo $label; ?>:</p><?php echo $data; ?>
+    <label>
+        <span><?php echo $label; ?>:</span>
+        <div><?php echo $data; ?></div>
+    </label>
 </div>
 <?php endforeach; ?>

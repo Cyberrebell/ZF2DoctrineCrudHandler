@@ -8,15 +8,17 @@ abstract class AbstractCrudHandler
 {
     const DEFAULT_TEMPLATE = '';
     
-    protected $annotationReader;
-    
     /**
      * @var \Doctrine\Common\Persistence\ObjectManager
      */
     protected $objectManager;
     
     /**
-     * 
+     * @var \Zend\Cache\Storage\Adapter\AbstractAdapter
+     */
+    protected $storageAdapter;
+    
+    /**
      * @var string
      */
     protected $entityNamespace;
@@ -37,18 +39,31 @@ abstract class AbstractCrudHandler
     protected $title;
     
     /**
+     * @var array:string
+     */
+    protected $propertyBlacklist = [];
+    
+    /**
+     * @var array:string
+     */
+    protected $propertyWhitelist = [];
+    
+    /**
      * function($entity){ ... } //return true to pass entity
      * @var \Closure
      */
-    protected $filterFunction;
+    protected $entityFilter;
     
     /**
+     * 
      * @param \Doctrine\Common\Persistence\ObjectManager $objectManager
      * @param string $entityNamespace
+     * @param \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter
      */
-    function __construct(\Doctrine\Common\Persistence\ObjectManager $objectManager, $entityNamespace){
+    function __construct(\Doctrine\Common\Persistence\ObjectManager $objectManager, $entityNamespace, \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter){
         $this->objectManager = $objectManager;
         $this->entityNamespace = $entityNamespace;
+        $this->storageAdapter = $storageAdapter;
     }
     
     /**
@@ -78,44 +93,55 @@ abstract class AbstractCrudHandler
     }
     
     /**
+     * Blacklist Entity properties like this: ['name', 'password']
+     * @param array $blacklist
+     * @return \ZF2DoctrineCrudHandler\Handler\AbstractCrudHandler
+     */
+    function setPropertyBlacklist(array $blacklist) {
+        $this->propertyBlacklist = $blacklist;
+    
+        return $this;
+    }
+    
+    /**
+     * Whitelist Entity properties like this: ['name', 'password']
+     * @param array $whitelist
+     * @return \ZF2DoctrineCrudHandler\Handler\AbstractCrudHandler
+     */
+    function setPropertyWhitelist(array $whitelist) {
+        $this->propertyWhitelist = $whitelist;
+    
+        return $this;
+    }
+    
+    /**
      * Set custom filter for special purposes (e.g. access control by entity relations)
      * function($entity){ ... } //return true to pass entity
      * @param \Closure $function
      * @return \Portalbasics\Model\CrudList\AbstractCrudHandler
      */
-    function setFilterFunction(\Closure $function) {
-        $this->filterFunction = $function;
+    function setEntityFilter(\Closure $filter) {
+        $this->entityFilter = $filter;
         
         return $this;
     }
     
     /**
      * @param array $entities
-     * @return array $entities |filtered by filterfunction
+     * @return array $entities filtered by filterfunction
      */
     protected function filterEntities($entities) {
-        if ($this->filterFunction !== NULL) {
+        if ($this->entityFilter !== NULL) {
+            $filter = $this->entityFilter;
             $filteredEntities = [];
             foreach ($entities as $entity) {
-                if ($this->filterEntity($entity)) {
+                if ($filter($entity)) {
                     $filteredEntities[] = $entity;
                 }
             }
             return $filteredEntities;
         } else {
             return $entities;
-        }
-    }
-    
-    /**
-     * @param $entity
-     * @return bool
-     */
-    protected function filterEntity($entity) {
-        if ($this->filterFunction($entity)) {
-            return true;
-        } else {
-            return false;
         }
     }
 
@@ -138,52 +164,42 @@ abstract class AbstractCrudHandler
         $this->viewModel->setVariable('title', $this->title);
     }
     
-    /**
-     * 
-     * @param array $entityProperties
-     * @throws \Exception
-     */
-    protected function setupEntityProperties(array $entityProperties) {
-        $consistentEntityProperties = [];
-        foreach ($entityProperties as $label => $entityProperty) {
-            if (is_numeric($label)) {   //simple usage (th-label == property name)
-                if ($entityProperty instanceof \Closure) {  //wrong usage message
-                    throw new \Exception('CrudList\'s entityProperties contains unlabeled Closure! Label it like this: [\'Parent Name\' => function($me, $entity){ return $entity->getParent()->getName(); }]');
-                }
-                $consistentEntityProperties[$entityProperty] = $this->createClosureFromPropertyName($entityProperty);
-            } else {    //advanced usage (th-label != property name) or (e.g. fk-function-chain)
-                if ($entityProperty instanceof \Closure) {
-                    $consistentEntityProperties[$label] = $entityProperty;
-                } else {
-                    $consistentEntityProperties[$label] = $this->createClosureFromPropertyName($entityProperty);
-                }
-            }
-        }
-        $this->viewModel->setVariable('entityProperties', $consistentEntityProperties);
-    }
-    
-    /**
-     * 
-     * @param string $propertyName
-     * @return \Closure
-     */
-    protected function createClosureFromPropertyName($propertyName) {
-        $functionName = 'get' . ucfirst($propertyName);
-        eval('$closure = function($me, $entity){ return $entity->' . $functionName . '(); };'); //eval is not avoidable in this case. But User-Input will never be executed here
-        return $closure;
-    }
-    
-    /**
-     * @return \Doctrine\Common\Annotations\AnnotationReader
-     */
-    protected function getAnnotationReader() {
-        if ($this->annotationReader === NULL) {
-            $this->annotationReader = new AnnotationReader();
-        }
-        return $this->annotationReader;
-    }
-    
     protected function render404() {
         
     }
+    
+//     /**
+//      * 
+//      * @param array $entityProperties
+//      * @throws \Exception
+//      */
+//     protected function setupEntityProperties(array $entityProperties) {
+//         $consistentEntityProperties = [];
+//         foreach ($entityProperties as $label => $entityProperty) {
+//             if (is_numeric($label)) {   //simple usage (th-label == property name)
+//                 if ($entityProperty instanceof \Closure) {  //wrong usage message
+//                     throw new \Exception('CrudList\'s entityProperties contains unlabeled Closure! Label it like this: [\'Parent Name\' => function($me, $entity){ return $entity->getParent()->getName(); }]');
+//                 }
+//                 $consistentEntityProperties[$entityProperty] = $this->createClosureFromPropertyName($entityProperty);
+//             } else {    //advanced usage (th-label != property name) or (e.g. fk-function-chain)
+//                 if ($entityProperty instanceof \Closure) {
+//                     $consistentEntityProperties[$label] = $entityProperty;
+//                 } else {
+//                     $consistentEntityProperties[$label] = $this->createClosureFromPropertyName($entityProperty);
+//                 }
+//             }
+//         }
+//         $this->viewModel->setVariable('entityProperties', $consistentEntityProperties);
+//     }
+    
+//     /**
+//      * 
+//      * @param string $propertyName
+//      * @return \Closure
+//      */
+//     protected function createClosureFromPropertyName($propertyName) {
+//         $functionName = 'get' . ucfirst($propertyName);
+//         eval('$closure = function($me, $entity){ return $entity->' . $functionName . '(); };'); //eval is not avoidable in this case. But User-Input will never be executed here
+//         return $closure;
+//     }
 }
