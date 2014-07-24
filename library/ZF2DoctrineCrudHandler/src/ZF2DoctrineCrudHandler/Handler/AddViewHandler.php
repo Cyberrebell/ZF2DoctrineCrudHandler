@@ -3,10 +3,26 @@
 namespace ZF2DoctrineCrudHandler\Handler;
 
 use Zend\View\Model\ViewModel;
+use ZF2DoctrineCrudHandler\Form\FormGenerator;
 
 class AddViewHandler extends AbstractFormViewHandler
 {
     const DEFAULT_TEMPLATE = 'zf2doctrinecrudhandler/add.phtml';
+    
+    protected $formGenerator;
+    
+    /**
+     * @param \Doctrine\Common\Persistence\ObjectManager $objectManager
+     * @param unknown $entityNamespace
+     * @param \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter
+     */
+    function __construct(\Doctrine\Common\Persistence\ObjectManager $objectManager, $entityNamespace, \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter){
+        $this->objectManager = $objectManager;
+        $this->entityNamespace = $entityNamespace;
+        $this->storageAdapter = $storageAdapter;
+        
+        $this->formGenerator = new FormGenerator($this->objectManager, $this->entityNamespace, $this->storageAdapter);
+    }
     
     /**
      * (non-PHPdoc)
@@ -15,15 +31,23 @@ class AddViewHandler extends AbstractFormViewHandler
     function getViewModel() {
         $this->viewModel = new ViewModel();
         
-        $this->createForm();
+        $form = $this->formGenerator->getForm();
         $this->viewModel->setVariable('form', $this->form);
         
-        $this->handleRequest();
+//         $this->handleRequest();
         
         $this->setupTemplate();
         $this->setupTitle();
         
         return $this->viewModel;
+    }
+    
+    /**
+     * Get the FormGenerator
+     * @return \ZF2DoctrineCrudHandler\Form\FormGenerator
+     */
+    function getFormGenerator() {
+        return $this->formGenerator;
     }
     
     protected function handleRequest() {
