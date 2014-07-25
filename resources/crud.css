@@ -1,0 +1,30 @@
+.crud-list{
+	border:1px black solid;
+    border-radius:3px;
+    text-align:right;
+	width:100%;
+}
+
+.crud-list th{
+    background-color:#e0e0e0;
+    border-radius:2px;
+}
+
+.crudlist-iconcol{
+	width:90px;
+}
+
+.crud-list td{
+    background-color:#f3f3f3;
+    border-radius:2px;
+}
+
+.crudlist-icon{
+	background-repeat:no-repeat;
+    background-size:100%;
+    float:right;
+    height:18px;
+    margin:0 0 0 10px;
+    padding:0;
+    width:18px;
+}

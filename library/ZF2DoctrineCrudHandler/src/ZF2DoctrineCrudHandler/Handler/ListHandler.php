@@ -3,10 +3,9 @@
 namespace ZF2DoctrineCrudHandler\Handler;
 
 use ZF2DoctrineCrudHandler\Reader\EntityReader;
-use ZF2DoctrineCrudHandler\Reader\Property;
 use Zend\View\Model\ViewModel;
 
-class ListHandler extends AbstractCrudHandler
+class ListHandler extends AbstractDataHandler
 {
     const DEFAULT_TEMPLATE = 'zf2doctrinecrudhandler/list.phtml';
     
@@ -35,7 +34,13 @@ class ListHandler extends AbstractCrudHandler
         
         $entities = $this->objectManager->getRepository($this->entityNamespace)->findBy($this->criteria);
         $entities = $this->filterEntities($entities);
-        $this->viewModel->setVariable('entities', $entities);
+        
+        $entitiesData = [];
+        foreach ($entities as $entity) {
+            $entitiesData[$entity->getId()] = $this->getEntityData($entity->getId());
+        }
+        
+        $this->viewModel->setVariable('entitiesData', $entitiesData);
         
         $this->viewModel->setVariable('entityProperties', $this->getEntityProperties());
         
@@ -89,60 +94,23 @@ class ListHandler extends AbstractCrudHandler
         
         return $this;
     }
-    
-    protected function getEntityProperties()
-    {
+
+    protected function getEntityProperties() {
         $useBlacklist = (count($this->propertyBlacklist) > 0) ? true : false;
         $useWhitelist = (count($this->propertyWhitelist) > 0) ? true : false;
         
         $properties = EntityReader::getProperties($this->entityNamespace);
-        
-        $propertiesToDisplay = [];
+        $filteredProperties = [];
         foreach ($properties as $property) {
             $name = $property->getName();
             if (//handle black&whitelist
-                ($useWhitelist && !in_array($name, $this->propertyWhitelist))
-                || ($useBlacklist && in_array($name, $this->propertyBlacklist))
+            ($useWhitelist && !in_array($name, $this->propertyWhitelist))
+            || ($useBlacklist && in_array($name, $this->propertyBlacklist))
             ) {
                 continue;
             }
-            switch ($property->getType()) {
-                case Property::PROPERTY_TYPE_COLUMN:
-                    $propertiesToDisplay[$name] = $this->createClosureFromPropertyName($name);
-                    break;
-                case Property::PROPERTY_TYPE_TOONE:
-                    $targetEntity = $property->getTargetEntity();
-                    $targetPropertsGetter = 'get' . ucfirst($targetEntity::DISPLAY_NAME_PROPERTY);
-                    $propertiesToDisplay[$name] = $this->createClosureFromPropertyName(
-                        $name . '()->' . $targetPropertsGetter
-                    );
-                    break;
-                case Property::PROPERTY_TYPE_TOMANY:
-//             	    $targetEntity = $property->getTargetEntity();
-//             	    $targetPropertsGetter = 'get' . ucfirst($targetEntity::DISPLAY_NAME_PROPERTY);
-//             	    $listString = '';
-//             	    foreach ($value as $targetEntity) {
-//             	        $listString .= $targetEntity->$targetPropertsGetter() . ',';
-//             	    }
-//             	    $value = substr($listString, 0, -1);
-//             	    break;
-                default:
-                    continue 2;
-            }
-            
+            $filteredProperties[] = $property->getName();
         }
-        return $propertiesToDisplay;
-    }
-    
-    /**
-     * @param string $propertyName
-     * @return \Closure
-     */
-    protected function createClosureFromPropertyName($propertyName)
-    {
-        $functionName = 'get' . ucfirst($propertyName);
-        //eval is not avoidable in this case. But User-Input will never be executed here
-        eval('$closure = function($me, $entity){ return $entity->' . $functionName . '(); };');
-        return $closure;
+        return $filteredProperties;
     }
 }

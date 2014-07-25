@@ -2,12 +2,12 @@
 <table class="crud-list">
     <thead>
         <tr>
-            <?php foreach (array_keys($entityProperties) as $propertyName): ?>
+            <?php foreach ($entityProperties as $propertyName): ?>
             <th>
                 <?php echo $this->translate($propertyName); ?>
             </th>
             <?php endforeach; ?>
-            <th>
+            <th class="crudlist-iconcol">
                 <?php foreach ($listHeadIcons as $icon => $ref): ?>
                     <a href="<?php echo $ref; ?>">
                         <img class="<?php echo $icon; ?>-icon crudlist-icon">
@@ -17,16 +17,16 @@
         </tr>
     </thead>
     <tbody>
-        <?php foreach ($entities as $entity): ?>
+        <?php foreach ($entitiesData as $entityId => $entityData): ?>
         <tr>
-            <?php foreach ($entityProperties as $entityProperty): ?>
+            <?php foreach ($entityData as $value): ?>
             <td>
-                <?php echo $entityProperty($this, $entity); ?>
+                <?php echo $value; ?>
             </td>
             <?php endforeach; ?>
             <td>
                 <?php foreach (array_reverse($listIcons) as $icon => $ref): ?>
-                    <a href="<?php echo $ref . '/' . $entity->getId(); ?>">
+                    <a href="<?php echo $ref . '/' . $entityId; ?>">
                         <img class="<?php echo $icon; ?>-icon crudlist-icon">
                     </a>
                 <?php endforeach; ?>
