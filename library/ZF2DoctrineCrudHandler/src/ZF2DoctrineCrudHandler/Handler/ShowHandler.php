@@ -16,7 +16,8 @@ class ShowHandler extends AbstractCrudHandler
      * @param int $id
      * @return \ZF2DoctrineCrudHandler\Handler\EditHandler
      */
-    function setEntityId($id) {
+    public function setEntityId($id)
+    {
         $this->entityId = $id;
     
         return $this;
@@ -26,7 +27,8 @@ class ShowHandler extends AbstractCrudHandler
      * (non-PHPdoc)
      * @see \Portalbasics\Model\CrudList\AbstractCrudHandler::getViewModel()
      */
-    function getViewModel() {
+    public function getViewModel()
+    {
         $this->viewModel = new ViewModel();
         
         $this->selectDataToDisplay();
@@ -37,10 +39,11 @@ class ShowHandler extends AbstractCrudHandler
         return $this->viewModel;
     }
     
-    protected function selectDataToDisplay() {
+    protected function selectDataToDisplay()
+    {
         if ($this->entityId) {
             $entity = $this->objectManager->getRepository($this->entityNamespace)->find($this->entityId);
-            if ($entity === NULL) { //check if entity with requested id exists
+            if ($entity === null) {//check if entity with requested id exists
                 $this->render404();
             } else {
                 $useBlacklist = (count($this->propertyBlacklist) > 0) ? true : false;
@@ -51,7 +54,7 @@ class ShowHandler extends AbstractCrudHandler
                 $dataToDisplay = [];
                 foreach ($properties as $property) {
                     $name = $property->getName();
-                    if (    //handle black&whitelist
+                    if (//handle black&whitelist
                         ($useWhitelist && !in_array($name, $this->propertyWhitelist))
                         || ($useBlacklist && in_array($name, $this->propertyBlacklist))
                     ) {
@@ -60,24 +63,24 @@ class ShowHandler extends AbstractCrudHandler
                     $getter = 'get' . ucfirst($name);
                     $value = $entity->$getter();
                     switch ($property->getType()) {
-                    	case Property::PROPERTY_TYPE_COLUMN:
-                    	    break;
-                    	case Property::PROPERTY_TYPE_TOONE:
-                    	    $targetEntity = $property->getTargetEntity();
-                    	    $targetPropertsGetter = 'get' . ucfirst($targetEntity::DISPLAY_NAME_PROPERTY);
-                    	    $value = $value->$targetPropertsGetter();
-                    	    break;
-                    	case Property::PROPERTY_TYPE_TOMANY:
-                    	    $targetEntity = $property->getTargetEntity();
-                    	    $targetPropertsGetter = 'get' . ucfirst($targetEntity::DISPLAY_NAME_PROPERTY);
-                    	    $listString = '';
-                    	    foreach ($value as $targetEntity) {
-                    	        $listString .= $targetEntity->$targetPropertsGetter() . ',';
-                    	    }
-                    	    $value = substr($listString, 0, -1);
-                    	    break;
-                    	default:
-                    	    continue 2;
+                        case Property::PROPERTY_TYPE_COLUMN:
+                            break;
+                        case Property::PROPERTY_TYPE_TOONE:
+                            $targetEntity = $property->getTargetEntity();
+                            $targetPropertsGetter = 'get' . ucfirst($targetEntity::DISPLAY_NAME_PROPERTY);
+                            $value = $value->$targetPropertsGetter();
+                            break;
+                        case Property::PROPERTY_TYPE_TOMANY:
+                            $targetEntity = $property->getTargetEntity();
+                            $targetPropertsGetter = 'get' . ucfirst($targetEntity::DISPLAY_NAME_PROPERTY);
+                            $listString = '';
+                            foreach ($value as $targetEntity) {
+                                $listString .= $targetEntity->$targetPropertsGetter() . ',';
+                            }
+                            $value = substr($listString, 0, -1);
+                            break;
+                        default:
+                            continue 2;
                     }
                     $dataToDisplay[$name] = $value;
                 }

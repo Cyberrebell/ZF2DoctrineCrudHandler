@@ -1,9 +1,32 @@
 <?php
+/**
+ * File containing AbstractCrudHandler class
+ *
+ * PHP version 5
+ *
+ * @category  ZF2DoctrineCrudHandler
+ * @package   ZF2DoctrineCrudHandler\Handler
+ * @author    Cyberrebell <cyberrebell@web.de>
+ * @copyright 2014 - 2014 Cyberrebell
+ * @license   http://www.gnu.org/licenses/gpl-3.0 GPL-3.0
+ * @version   GIT: <git_id>
+ * @link      https://github.com/Cyberrebell/ZF2DoctrineCrudHandler
+ */
 
 namespace ZF2DoctrineCrudHandler\Handler;
 
 use Doctrine\Common\Annotations\AnnotationReader;
 
+/**
+ * Abstract Class for Crud-Handlers
+ * Offers some configuration options all Handlers need
+ *
+ * @category ZF2DoctrineCrudHandler
+ * @package  ZF2DoctrineCrudHandler\Handler
+ * @author   Cyberrebell <cyberrebell@web.de>
+ * @license  http://www.gnu.org/licenses/gpl-3.0 GPL-3.0
+ * @link     https://github.com/Cyberrebell/ZF2DoctrineCrudHandler
+ */
 abstract class AbstractCrudHandler
 {
     const DEFAULT_TEMPLATE = '';
@@ -49,66 +72,87 @@ abstract class AbstractCrudHandler
     protected $propertyWhitelist = [];
     
     /**
-     * function($entity){ ... } //return true to pass entity
+     * function($entity){ ... }
+     * return true to pass entity
      * @var \Closure
      */
     protected $entityFilter;
     
     /**
+     * Constructor for AbstractCrudHandler
      * 
-     * @param \Doctrine\Common\Persistence\ObjectManager $objectManager
-     * @param string $entityNamespace
-     * @param \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter
+     * @param \Doctrine\Common\Persistence\ObjectManager  $objectManager   Doctrine-Object-Manager
+     * @param string                                      $entityNamespace Namespace of Entity to do operations for
+     * @param \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter  Cache Adapter
      */
-    function __construct(\Doctrine\Common\Persistence\ObjectManager $objectManager, $entityNamespace, \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter){
+    public function __construct(
+        \Doctrine\Common\Persistence\ObjectManager $objectManager,
+        $entityNamespace,
+        \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter
+    ) {
         $this->objectManager = $objectManager;
         $this->entityNamespace = $entityNamespace;
         $this->storageAdapter = $storageAdapter;
     }
     
     /**
+     * Generates a ViewModel which is ready to render
+     * 
      * @return \Zend\View\Model\ViewModel
      */
-    abstract function getViewModel();
+    abstract public function getViewModel();
     
     /**
      * setup viewmodel to use the action-related view template
      * else CrudList uses its default template you can style as you need using css
-     * @return \Portalbasics\Model\CrudList\ListViewHandler
+     * 
+     * @return \ZF2DoctrineCrudHandler\Handler\AbstractCrudHandler
      */
-    function useCustomTemplate(){
+    public function useCustomTemplate()
+    {
         $this->useCustomTemplate = true;
         
         return $this;
     }
     
     /**
-     * @param string $title
-     * @return \Portalbasics\Model\CrudList\ListViewHandler
+     * Set a title to display in view
+     * Default title will be the entity-name
+     * 
+     * @param string $title simple string
+     * 
+     * @return \ZF2DoctrineCrudHandler\Handler\AbstractCrudHandler
      */
-    function setTitle($title) {
+    public function setTitle($title)
+    {
         $this->title = $title;
         
         return $this;
     }
     
     /**
-     * Blacklist Entity properties like this: ['name', 'password']
-     * @param array $blacklist
+     * Blacklist Entity-Properties for view-generation
+     * 
+     * @param array $blacklist ['password', 'registrationDate']
+     * 
      * @return \ZF2DoctrineCrudHandler\Handler\AbstractCrudHandler
      */
-    function setPropertyBlacklist(array $blacklist) {
+    public function setPropertyBlacklist(array $blacklist)
+    {
         $this->propertyBlacklist = $blacklist;
     
         return $this;
     }
     
     /**
-     * Whitelist Entity properties like this: ['name', 'password']
-     * @param array $whitelist
+     * Whitelist Entity-Properties for form-generation
+     * 
+     * @param array $whitelist ['name', 'age']
+     * 
      * @return \ZF2DoctrineCrudHandler\Handler\AbstractCrudHandler
      */
-    function setPropertyWhitelist(array $whitelist) {
+    public function setPropertyWhitelist(array $whitelist)
+    {
         $this->propertyWhitelist = $whitelist;
     
         return $this;
@@ -116,22 +160,30 @@ abstract class AbstractCrudHandler
     
     /**
      * Set custom filter for special purposes (e.g. access control by entity relations)
-     * function($entity){ ... } //return true to pass entity
-     * @param \Closure $function
+     * 
+     * The Closure should return true if the entity should be used for view-generation
+     * 
+     * @param \Closure $filter function($entity){ ... }
+     * 
      * @return \Portalbasics\Model\CrudList\AbstractCrudHandler
      */
-    function setEntityFilter(\Closure $filter) {
+    public function setEntityFilter(\Closure $filter)
+    {
         $this->entityFilter = $filter;
         
         return $this;
     }
     
     /**
-     * @param array $entities
+     * Use given entityFilter to get only allowed
+     * 
+     * @param array $entities Input Entities
+     * 
      * @return array $entities filtered by filterfunction
      */
-    protected function filterEntities($entities) {
-        if ($this->entityFilter !== NULL) {
+    protected function filterEntities($entities)
+    {
+        if ($this->entityFilter !== null) {
             $filter = $this->entityFilter;
             $filteredEntities = [];
             foreach ($entities as $entity) {
@@ -147,8 +199,11 @@ abstract class AbstractCrudHandler
 
     /**
      * Setup CrudList-Default-Template if custom use is not set
+     * 
+     * @return null
      */
-    protected function setupTemplate() {
+    protected function setupTemplate()
+    {
         if ($this->useCustomTemplate == false) {
             $this->viewModel->setTemplate($this::DEFAULT_TEMPLATE);
         }
@@ -156,50 +211,24 @@ abstract class AbstractCrudHandler
     
     /**
      * Set Title into ViewModel, extract Entity-Classname if no title set
+     * 
+     * @return null
      */
-    protected function setupTitle() {
-        if ($this->title === NULL) {
+    protected function setupTitle()
+    {
+        if ($this->title === null) {
             $this->title = end(explode('\\', $this->entityNamespace));
         }
         $this->viewModel->setVariable('title', $this->title);
     }
     
-    protected function render404() {
+    /**
+     * Switch ViewModel to render 404 template
+     * 
+     * @return null
+     */
+    protected function render404()
+    {
         
     }
-    
-//     /**
-//      * 
-//      * @param array $entityProperties
-//      * @throws \Exception
-//      */
-//     protected function setupEntityProperties(array $entityProperties) {
-//         $consistentEntityProperties = [];
-//         foreach ($entityProperties as $label => $entityProperty) {
-//             if (is_numeric($label)) {   //simple usage (th-label == property name)
-//                 if ($entityProperty instanceof \Closure) {  //wrong usage message
-//                     throw new \Exception('CrudList\'s entityProperties contains unlabeled Closure! Label it like this: [\'Parent Name\' => function($me, $entity){ return $entity->getParent()->getName(); }]');
-//                 }
-//                 $consistentEntityProperties[$entityProperty] = $this->createClosureFromPropertyName($entityProperty);
-//             } else {    //advanced usage (th-label != property name) or (e.g. fk-function-chain)
-//                 if ($entityProperty instanceof \Closure) {
-//                     $consistentEntityProperties[$label] = $entityProperty;
-//                 } else {
-//                     $consistentEntityProperties[$label] = $this->createClosureFromPropertyName($entityProperty);
-//                 }
-//             }
-//         }
-//         $this->viewModel->setVariable('entityProperties', $consistentEntityProperties);
-//     }
-    
-//     /**
-//      * 
-//      * @param string $propertyName
-//      * @return \Closure
-//      */
-//     protected function createClosureFromPropertyName($propertyName) {
-//         $functionName = 'get' . ucfirst($propertyName);
-//         eval('$closure = function($me, $entity){ return $entity->' . $functionName . '(); };'); //eval is not avoidable in this case. But User-Input will never be executed here
-//         return $closure;
-//     }
 }

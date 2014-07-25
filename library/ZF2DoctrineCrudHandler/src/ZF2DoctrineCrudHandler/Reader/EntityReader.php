@@ -1,4 +1,17 @@
 <?php
+/**
+ * File containing EntityReader class
+ *
+ * PHP version 5
+ *
+ * @category  ZF2DoctrineCrudHandler
+ * @package   ZF2DoctrineCrudHandler\Reader
+ * @author    Cyberrebell <cyberrebell@web.de>
+ * @copyright 2014 - 2014 Cyberrebell
+ * @license   http://www.gnu.org/licenses/gpl-3.0 GPL-3.0
+ * @version   GIT: <git_id>
+ * @link      https://github.com/Cyberrebell/ZF2DoctrineCrudHandler
+ */
 
 namespace ZF2DoctrineCrudHandler\Reader;
 
@@ -6,15 +19,24 @@ use Doctrine\Common\Annotations\AnnotationReader;
 
 /**
  * Creates profiles about entity Properties by reading the doctrine annotations
- * @author Cyberrebell
+ *
+ * @category ZF2DoctrineCrudHandler
+ * @package  ZF2DoctrineCrudHandler\Reader
+ * @author   Cyberrebell <cyberrebell@web.de>
+ * @license  http://www.gnu.org/licenses/gpl-3.0 GPL-3.0
+ * @link     https://github.com/Cyberrebell/ZF2DoctrineCrudHandler
  */
 class EntityReader
 {
     /**
-     * @param string $entityNamespace
+     * Returns Properties determined by Entity-Namespace
+     * 
+     * @param string $entityNamespace Entity-Namespace
+     * 
      * @return array:\ZF2DoctrineCrudHandler\Annotation\Property
      */
-    static function getProperties($entityNamespace) {
+    public static function getProperties($entityNamespace)
+    {
         $reflectionClass = new \ReflectionClass($entityNamespace);
         $reflectionProperties = $reflectionClass->getProperties();
         
@@ -29,11 +51,16 @@ class EntityReader
     }
     
     /**
-     * @param \ReflectionProperty $reflectionProperty
+     * Returns created Property-Object
+     * gets Information from Reflection-Property which contains Doctrine-Annotations
+     * 
+     * @param \ReflectionProperty $reflectionProperty Reflection-Property of Entity
+     * 
      * @throws \Exception
-     * @return \ZF2DoctrineCrudHandler\Annotation\Property
+     * @return boolean|\ZF2DoctrineCrudHandler\Reader\Property
      */
-    static protected function createProperty(\ReflectionProperty $reflectionProperty) {
+    protected static function createProperty(\ReflectionProperty $reflectionProperty)
+    {
         $property = new Property();
         $property->setName($reflectionProperty->getName());
         
@@ -43,14 +70,18 @@ class EntityReader
             $annotationClassName = get_class($annotation);
             if ($annotationClassName == 'Doctrine\ORM\Mapping\Id') {
                 return false;
-            } else if ($annotationClassName == 'Doctrine\ORM\Mapping\Column') {
+            } elseif ($annotationClassName == 'Doctrine\ORM\Mapping\Column') {
                 $property->setAnnotation($annotation);
                 $property->setType(Property::PROPERTY_TYPE_COLUMN);
-            } else if ($annotationClassName == 'Doctrine\ORM\Mapping\ManyToOne' || $annotationClassName == 'Doctrine\ORM\Mapping\OneToOne') {
+            } elseif ($annotationClassName == 'Doctrine\ORM\Mapping\ManyToOne'
+                || $annotationClassName == 'Doctrine\ORM\Mapping\OneToOne'
+            ) {
                 $property->setAnnotation($annotation);
                 $property->setType(Property::PROPERTY_TYPE_TOONE);
                 $property->setTargetEntity($annotation->targetEntity);
-            } else if ($annotationClassName == 'Doctrine\ORM\Mapping\ManyToMany' || $annotationClassName == 'Doctrine\ORM\Mapping\OneToMany') {
+            } elseif ($annotationClassName == 'Doctrine\ORM\Mapping\ManyToMany'
+                || $annotationClassName == 'Doctrine\ORM\Mapping\OneToMany'
+            ) {
                 $property->setAnnotation($annotation);
                 $property->setType(Property::PROPERTY_TYPE_TOMANY);
                 $property->setTargetEntity($annotation->targetEntity);
@@ -58,7 +89,10 @@ class EntityReader
         }
         
         if ($property->getType() == -1) {
-            throw new \Exception('Entity "' . $reflectionProperty->getDeclaringClass()->getName() . '": defining annotation is missing at property "' . $property->getName() . '"!');
+            throw new \Exception(
+                'Entity "' . $reflectionProperty->getDeclaringClass()->getName()
+                . '": defining annotation is missing at property "' . $property->getName() . '"!'
+            );
         }
         
         return $property;

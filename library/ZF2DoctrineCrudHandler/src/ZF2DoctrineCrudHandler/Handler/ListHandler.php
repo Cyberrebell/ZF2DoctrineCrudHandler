@@ -29,7 +29,8 @@ class ListHandler extends AbstractCrudHandler
      * (non-PHPdoc)
      * @see \Portalbasics\Model\CrudList\AbstractCrudHandler::getViewModel()
      */
-    function getViewModel() {
+    public function getViewModel()
+    {
         $this->viewModel = new ViewModel();
         
         $entities = $this->objectManager->getRepository($this->entityNamespace)->findBy($this->criteria);
@@ -38,11 +39,11 @@ class ListHandler extends AbstractCrudHandler
         
         $this->viewModel->setVariable('entityProperties', $this->getEntityProperties());
         
-        if ($this->listIcons === NULL) {
+        if ($this->listIcons === null) {
             $this->listIcons = ['show' => '', 'edit' => '', 'delete' => ''];
         }
         $this->viewModel->setVariable('listIcons', $this->listIcons);
-        if ($this->listHeadIcons === NULL) {
+        if ($this->listHeadIcons === null) {
             $this->listHeadIcons = ['add' => ''];
         }
         $this->viewModel->setVariable('listHeadIcons', $this->listHeadIcons);
@@ -58,7 +59,8 @@ class ListHandler extends AbstractCrudHandler
      * @param array $criteria
      * @return \Portalbasics\Model\CrudList\ListViewHandler
      */
-    function setCriteria(array $criteria) {
+    public function setCriteria(array $criteria)
+    {
         $this->criteria = $criteria;
     
         return $this;
@@ -69,7 +71,8 @@ class ListHandler extends AbstractCrudHandler
      * @param array $icons
      * @return \Portalbasics\Model\CrudList\ListViewHandler
      */
-    function setIcons(array $icons) {
+    public function setIcons(array $icons)
+    {
         $this->listIcons = $icons;
         
         return $this;
@@ -80,13 +83,15 @@ class ListHandler extends AbstractCrudHandler
      * @param array $icons
      * @return \Portalbasics\Model\CrudList\ListViewHandler
      */
-    function setHeadIcons(array $icons) {
+    public function setHeadIcons(array $icons)
+    {
         $this->listHeadIcons = $icons;
         
         return $this;
     }
     
-    protected function getEntityProperties() {
+    protected function getEntityProperties()
+    {
         $useBlacklist = (count($this->propertyBlacklist) > 0) ? true : false;
         $useWhitelist = (count($this->propertyWhitelist) > 0) ? true : false;
         
@@ -95,22 +100,24 @@ class ListHandler extends AbstractCrudHandler
         $propertiesToDisplay = [];
         foreach ($properties as $property) {
             $name = $property->getName();
-            if (    //handle black&whitelist
+            if (//handle black&whitelist
                 ($useWhitelist && !in_array($name, $this->propertyWhitelist))
                 || ($useBlacklist && in_array($name, $this->propertyBlacklist))
             ) {
                 continue;
             }
             switch ($property->getType()) {
-            	case Property::PROPERTY_TYPE_COLUMN:
-            	    $propertiesToDisplay[$name] = $this->createClosureFromPropertyName($name);
-            	    break;
-            	case Property::PROPERTY_TYPE_TOONE:
-            	    $targetEntity = $property->getTargetEntity();
-            	    $targetPropertsGetter = 'get' . ucfirst($targetEntity::DISPLAY_NAME_PROPERTY);
-            	    $propertiesToDisplay[$name] = $this->createClosureFromPropertyName($name . '()->' . $targetPropertsGetter);
-            	    break;
-            	case Property::PROPERTY_TYPE_TOMANY:
+                case Property::PROPERTY_TYPE_COLUMN:
+                    $propertiesToDisplay[$name] = $this->createClosureFromPropertyName($name);
+                    break;
+                case Property::PROPERTY_TYPE_TOONE:
+                    $targetEntity = $property->getTargetEntity();
+                    $targetPropertsGetter = 'get' . ucfirst($targetEntity::DISPLAY_NAME_PROPERTY);
+                    $propertiesToDisplay[$name] = $this->createClosureFromPropertyName(
+                        $name . '()->' . $targetPropertsGetter
+                    );
+                    break;
+                case Property::PROPERTY_TYPE_TOMANY:
 //             	    $targetEntity = $property->getTargetEntity();
 //             	    $targetPropertsGetter = 'get' . ucfirst($targetEntity::DISPLAY_NAME_PROPERTY);
 //             	    $listString = '';
@@ -119,8 +126,8 @@ class ListHandler extends AbstractCrudHandler
 //             	    }
 //             	    $value = substr($listString, 0, -1);
 //             	    break;
-            	default:
-            	    continue 2;
+                default:
+                    continue 2;
             }
             
         }
@@ -131,9 +138,11 @@ class ListHandler extends AbstractCrudHandler
      * @param string $propertyName
      * @return \Closure
      */
-    protected function createClosureFromPropertyName($propertyName) {
+    protected function createClosureFromPropertyName($propertyName)
+    {
         $functionName = 'get' . ucfirst($propertyName);
-        eval('$closure = function($me, $entity){ return $entity->' . $functionName . '(); };'); //eval is not avoidable in this case. But User-Input will never be executed here
+        //eval is not avoidable in this case. But User-Input will never be executed here
+        eval('$closure = function($me, $entity){ return $entity->' . $functionName . '(); };');
         return $closure;
     }
 }

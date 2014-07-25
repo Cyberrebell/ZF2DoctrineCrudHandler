@@ -1,4 +1,17 @@
 <?php
+/**
+ * File containing FormGenerator class
+ *
+ * PHP version 5
+ *
+ * @category  ZF2DoctrineCrudHandler
+ * @package   ZF2DoctrineCrudHandler\Form
+ * @author    Cyberrebell <cyberrebell@web.de>
+ * @copyright 2014 - 2014 Cyberrebell
+ * @license   http://www.gnu.org/licenses/gpl-3.0 GPL-3.0
+ * @version   GIT: <git_id>
+ * @link      https://github.com/Cyberrebell/ZF2DoctrineCrudHandler
+ */
 
 namespace ZF2DoctrineCrudHandler\Form;
 
@@ -17,8 +30,13 @@ use Zend\Form\Element\Password;
 use Zend\Form\Element\Select;
 
 /**
- * Generates Form
- * @author Cyberrebell
+ * Generates Zend Form Object from Entity-Annotations
+ * 
+ * @category ZF2DoctrineCrudHandler
+ * @package  ZF2DoctrineCrudHandler\Form
+ * @author   Cyberrebell <cyberrebell@web.de>
+ * @license  http://www.gnu.org/licenses/gpl-3.0 GPL-3.0
+ * @link     https://github.com/Cyberrebell/ZF2DoctrineCrudHandler
  */
 class FormGenerator
 {
@@ -43,39 +61,77 @@ class FormGenerator
     protected $emailProperties = [];
     protected $passwordProperties = [];
     
-    protected $toOneElement = self::TO_ONE_ELEMENT_SELECT;  //select / radio
-    protected $toManyElement = self::TO_MANY_ELEMENT_MULTISELECT;   //multiselect / multicheck
+    protected $toOneElement = self::TO_ONE_ELEMENT_SELECT;
+    protected $toManyElement = self::TO_MANY_ELEMENT_MULTISELECT;
     
     /**
-     * @param \Doctrine\Common\Persistence\ObjectManager $objectManager
-     * @param string $entityNamespace
-     * @param \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter
+     * Constructor for FormGenerator
+     * 
+     * @param \Doctrine\Common\Persistence\ObjectManager  $objectManager   Doctrine-Object-Manager
+     * @param string                                      $entityNamespace Namespace of Entity to generate the form for
+     * @param \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter  Cache Adapter
      */
-    function __construct(\Doctrine\Common\Persistence\ObjectManager $objectManager, $entityNamespace, \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter){
+    public function __construct(
+        \Doctrine\Common\Persistence\ObjectManager $objectManager,
+        $entityNamespace,
+        \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter
+    ) {
         $this->objectManager = $objectManager;
         $this->entityNamespace = $entityNamespace;
         $this->storageAdapter = $storageAdapter;
     }
     
-    function setPropertyBlacklist(array $blacklist) {
+    /**
+     * Blacklist Entity-Properties for form-generation
+     * 
+     * @param array:string $blacklist ['password', 'registrationDate']
+     * 
+     * @return \ZF2DoctrineCrudHandler\Form\FormGenerator
+     */
+    public function setPropertyBlacklist(array $blacklist)
+    {
         $this->propertyBlacklist = $blacklist;
         
         return $this;
     }
     
-    function setPropertyWhitelist(array $whitelist) {
+    /**
+     * Whitelist Entity-Properties for form-generation
+     * 
+     * @param array $whitelist ['name', 'age']
+     * 
+     * @return \ZF2DoctrineCrudHandler\Form\FormGenerator
+     */
+    public function setPropertyWhitelist(array $whitelist)
+    {
         $this->propertyWhitelist = $whitelist;
         
         return $this;
     }
     
-    function setEmailProperties(array $emailProperties) {
+    /**
+     * Set Entity-Properties to be email inputs in form-generation
+     * 
+     * @param array:string $emailProperties ['admin@mail.com']
+     * 
+     * @return \ZF2DoctrineCrudHandler\Form\FormGenerator
+     */
+    public function setEmailProperties(array $emailProperties)
+    {
         $this->emailProperties = $emailProperties;
         
         return $this;
     }
     
-    function setPasswordProperties(array $passwordProperties) {
+    /**
+     * Set Entity-Properties to be password inputs in form-generation
+     * 
+     * @param array $passwordProperties ['password']
+     * 
+     * @return \ZF2DoctrineCrudHandler\Form\FormGenerator
+     */
+    public function setPasswordProperties(array $passwordProperties)
+    {
         $this->passwordProperties = $passwordProperties;
         
         return $this;
@@ -83,9 +139,11 @@ class FormGenerator
     
     /**
      * Generates the form
+     * 
      * @return \Zend\Form\Form
      */
-    function getForm() {
+    public function getForm()
+    {
         $form = new Form();
         
         $useBlacklist = (count($this->propertyBlacklist) > 0) ? true : false;
@@ -94,25 +152,24 @@ class FormGenerator
         $properties = EntityReader::getProperties($this->entityNamespace);
         foreach ($properties as $property) {
             $name = $property->getName();
-            if (    //handle black&whitelist
-                ($useWhitelist && !in_array($name, $this->propertyWhitelist))
+            if (($useWhitelist && !in_array($name, $this->propertyWhitelist))
                 || ($useBlacklist && in_array($name, $this->propertyBlacklist))
             ) {
                 continue;
             }
             
             switch ($property->getType()) {
-            	case Property::PROPERTY_TYPE_COLUMN:
-            	    $this->addColumnElementToForm($form, $property);
-            	    break;
-            	case Property::PROPERTY_TYPE_TOONE:
-            	    $this->addSingleSelecterElementToForm($form, $property);
-            	    break;
-            	case Property::PROPERTY_TYPE_TOMANY:
-            	    $this->addMultiSelecterElementToForm($form, $property);
-            	    break;
-            	default:
-            	    continue 2;
+                case Property::PROPERTY_TYPE_COLUMN:
+                    $this->addColumnElementToForm($form, $property);
+                    break;
+                case Property::PROPERTY_TYPE_TOONE:
+                    $this->addSingleSelecterElementToForm($form, $property);
+                    break;
+                case Property::PROPERTY_TYPE_TOMANY:
+                    $this->addMultiSelecterElementToForm($form, $property);
+                    break;
+                default:
+                    continue 2;
             }
         }
         
@@ -125,42 +182,48 @@ class FormGenerator
     
     /**
      * Adds a property depending column-element to the form
-     * @param \Zend\Form\Form $form
-     * @param \ZF2DoctrineCrudHandler\Reader\Property $property
+     * 
+     * @param \Zend\Form\Form                         $form     Form object to add the element to
+     * @param \ZF2DoctrineCrudHandler\Reader\Property $property Property to generate the element from
+     * 
+     * @return null
      */
-    protected function addColumnElementToForm(\Zend\Form\Form $form, \ZF2DoctrineCrudHandler\Reader\Property $property) {
+    protected function addColumnElementToForm(
+        \Zend\Form\Form $form,
+        \ZF2DoctrineCrudHandler\Reader\Property $property
+    ) {
         $annotationType = $property->getAnnotation()->type;
         $label = $property->getName();
         switch ($annotationType) {
-        	case 'datetime':
-        	    $element = new DateTime($property->getName());
-        	    break;
-        	case 'date':
-        	    $element = new Date($property->getName());
-        	    break;
-        	case 'time':
-        	    $element = new Time($property->getName());
-        	    break;
-        	case 'text':
-        	    $element = new Textarea($property->getName());
-        	    break;
-        	case 'boolean':
-        	    $element = new Checkbox($property->getName());
-        	    break;
-        	default:
-        	    if (in_array($property->getName(), $this->emailProperties)) {
-        	        $element = new Email($property->getName());
-        	    } else if (in_array($property->getName(), $this->passwordProperties)) {
-        	        $element = new Password($property->getName());
-        	        $element->setLabel($property->getName());
-        	        $form->add($element);
-        	    
-        	        $element = new Password($property->getName() . '2');   //repeat password field
-        	        $label = $property->getName() . ' (repeat)';
-        	    } else {
-        	        $element = new Text($property->getName());
-        	    }
-    	        break;
+            case 'datetime':
+                $element = new DateTime($property->getName());
+                break;
+            case 'date':
+                $element = new Date($property->getName());
+                break;
+            case 'time':
+                $element = new Time($property->getName());
+                break;
+            case 'text':
+                $element = new Textarea($property->getName());
+                break;
+            case 'boolean':
+                $element = new Checkbox($property->getName());
+                break;
+            default:
+                if (in_array($property->getName(), $this->emailProperties)) {
+                    $element = new Email($property->getName());
+                } elseif (in_array($property->getName(), $this->passwordProperties)) {
+                    $element = new Password($property->getName());
+                    $element->setLabel($property->getName());
+                    $form->add($element);
+                
+                    $element = new Password($property->getName() . '2');   //repeat password field
+                    $label = $property->getName() . ' (repeat)';
+                } else {
+                    $element = new Text($property->getName());
+                }
+                break;
         }
         
         $element->setLabel($label);
@@ -169,10 +232,16 @@ class FormGenerator
     
     /**
      * Adds a property depending single-selecter-element to the form
-     * @param \Zend\Form\Form $form
-     * @param \ZF2DoctrineCrudHandler\Reader\Property $property
+     * 
+     * @param \Zend\Form\Form                         $form     Form object to add the element to
+     * @param \ZF2DoctrineCrudHandler\Reader\Property $property Property to generate the element from
+     * 
+     * @return null
      */
-    protected function addSingleSelecterElementToForm(\Zend\Form\Form $form, \ZF2DoctrineCrudHandler\Reader\Property $property) {
+    protected function addSingleSelecterElementToForm(
+        \Zend\Form\Form $form,
+        \ZF2DoctrineCrudHandler\Reader\Property $property
+    ) {
         $element = new Select($property->getName());
         
         $options = $this->getValueOptionsFromEntity($property->getTargetEntity());
@@ -184,10 +253,16 @@ class FormGenerator
     
     /**
      * Adds a property depending multi-selecter-element to the form
-     * @param \Zend\Form\Form $form
-     * @param \ZF2DoctrineCrudHandler\Reader\Property $property
+     * 
+     * @param \Zend\Form\Form                         $form     Form object to add the element to
+     * @param \ZF2DoctrineCrudHandler\Reader\Property $property Property to generate the element from
+     * 
+     * @return null
      */
-    protected function addMultiSelecterElementToForm(\Zend\Form\Form $form, \ZF2DoctrineCrudHandler\Reader\Property $property) {
+    protected function addMultiSelecterElementToForm(
+        \Zend\Form\Form $form,
+        \ZF2DoctrineCrudHandler\Reader\Property $property
+    ) {
         $element = new Select($property->getName());
         $element->setAttribute('multiple', true);
         
@@ -200,10 +275,13 @@ class FormGenerator
     
     /**
      * Get ValueOptions for Form-Elements by entity
-     * @param string $entityNamespace
-     * @return array [$id => $displayName]
+     * 
+     * @param string $entityNamespace Namespace of Entity to get the ValueOptions from Entity
+     * 
+     * @return array:string [$id => $displayName]
      */
-    protected function getValueOptionsFromEntity($entityNamespace) {
+    protected function getValueOptionsFromEntity($entityNamespace)
+    {
         $targets = $this->objectManager->getRepository($entityNamespace)->findBy([], ['id' => 'ASC']);
         $displayNameGetter = 'get' . ucfirst($entityNamespace::DISPLAY_NAME_PROPERTY);
         $options = [];

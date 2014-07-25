@@ -1,20 +1,49 @@
 <?php
+/**
+ * File containing AbstractFormHandler class
+ *
+ * PHP version 5
+ *
+ * @category  ZF2DoctrineCrudHandler
+ * @package   ZF2DoctrineCrudHandler\Handler
+ * @author    Cyberrebell <cyberrebell@web.de>
+ * @copyright 2014 - 2014 Cyberrebell
+ * @license   http://www.gnu.org/licenses/gpl-3.0 GPL-3.0
+ * @version   GIT: <git_id>
+ * @link      https://github.com/Cyberrebell/ZF2DoctrineCrudHandler
+ */
 
 namespace ZF2DoctrineCrudHandler\Handler;
 
 use ZF2DoctrineCrudHandler\Form\FormGenerator;
 
+/**
+ * Abstract Class for Form-Crud-Handlers
+ * Offers some configuration options Form-Handlers need
+ *
+ * @category ZF2DoctrineCrudHandler
+ * @package  ZF2DoctrineCrudHandler\Handler
+ * @author   Cyberrebell <cyberrebell@web.de>
+ * @license  http://www.gnu.org/licenses/gpl-3.0 GPL-3.0
+ * @link     https://github.com/Cyberrebell/ZF2DoctrineCrudHandler
+ */
 abstract class AbstractFormHandler extends AbstractCrudHandler
 {
     protected $formGenerator;
     protected $request;
     
     /**
-     * @param \Doctrine\Common\Persistence\ObjectManager $objectManager
-     * @param string $entityNamespace
-     * @param \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter
+     * Constructor for AbstractFormHandler
+     * 
+     * @param \Doctrine\Common\Persistence\ObjectManager  $objectManager   Doctrine-Object-Manager
+     * @param string                                      $entityNamespace Namespace of Entity to do operations for
+     * @param \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter  Cache Adapter
      */
-    function __construct(\Doctrine\Common\Persistence\ObjectManager $objectManager, $entityNamespace, \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter){
+    public function __construct(
+        \Doctrine\Common\Persistence\ObjectManager $objectManager,
+        $entityNamespace,
+        \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter
+    ) {
         $this->objectManager = $objectManager;
         $this->entityNamespace = $entityNamespace;
         $this->storageAdapter = $storageAdapter;
@@ -27,56 +56,70 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
     
     /**
      * Set Request which may be POST
-     * @param \Zend\Http\Request $request
+     * needed to handle POST's
+     * 
+     * @param \Zend\Http\Request $request Request of Controller
+     * 
      * @return \ZF2DoctrineCrudHandler\Handler\AbstractFormHandler
      */
-    function setRequest(\Zend\Http\Request $request) {
+    public function setRequest(\Zend\Http\Request $request)
+    {
         $this->request = $request;
         
         return $this;
     }
     
     /**
-     * Blacklist Entity properties like this: ['name', 'password']
-     * @param array $blacklist
-     * @return \ZF2DoctrineCrudHandler\Handler\AbstractCrudHandler
+     * Blacklist Entity-Properties for form-generation
+     * 
+     * @param array:string $blacklist ['password', 'registrationDate']
+     * 
+     * @return \ZF2DoctrineCrudHandler\Handler\AbstractFormHandler
      */
-    function setPropertyBlacklist(array $blacklist) {
+    public function setPropertyBlacklist(array $blacklist)
+    {
         $this->formGenerator->setPropertyBlacklist($blacklist);
     
         return $this;
     }
     
     /**
-     * Whitelist Entity properties like this: ['name', 'password']
-     * @param array $whitelist
-     * @return \ZF2DoctrineCrudHandler\Handler\AbstractCrudHandler
+     * Whitelist Entity-Properties for form-generation
+     * 
+     * @param array $whitelist ['name', 'age']
+     * 
+     * @return \ZF2DoctrineCrudHandler\Handler\AbstractFormHandler
      */
-    function setPropertyWhitelist(array $whitelist) {
+    public function setPropertyWhitelist(array $whitelist)
+    {
         $this->formGenerator->setPropertyWhitelist($whitelist);
     
         return $this;
     }
     
     /**
-     * Mark properties as email-field
-     * used in form generation
-     * @param array $emailProperties
+     * Set Entity-Properties to be email inputs in form-generation
+     * 
+     * @param array:string $emailProperties ['admin@mail.com']
+     * 
      * @return \ZF2DoctrineCrudHandler\Handler\AbstractFormHandler
      */
-    function setEmailProperties(array $emailProperties) {
+    public function setEmailProperties(array $emailProperties)
+    {
         $this->formGenerator->setEmailProperties($emailProperties);
         
         return $this;
     }
     
     /**
-     * Mark properties as password-field
-     * used in form generation
-     * @param array $passwordProperties
+     * Set Entity-Properties to be password inputs in form-generation
+     * 
+     * @param array $passwordProperties ['password']
+     * 
      * @return \ZF2DoctrineCrudHandler\Handler\AbstractFormHandler
      */
-    function setPasswordProperties(array $passwordProperties) {
+    public function setPasswordProperties(array $passwordProperties)
+    {
         $this->formGenerator->setPasswordProperties($passwordProperties);
         
         return $this;
