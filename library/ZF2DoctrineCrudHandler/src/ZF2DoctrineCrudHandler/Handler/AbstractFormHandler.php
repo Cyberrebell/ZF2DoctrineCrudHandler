@@ -50,6 +50,7 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
                 $this->entityNamespace = $entityNamespace;
                 $this->objectManager = $this->serviceManager->get($crudCfg['objectManager']);
                 $this->storageAdapter = $this->serviceManager->get($crudCfg['cache']);
+                $this->initRecacheAgent();
                 
                 $this->formGenerator = new FormGenerator($this->objectManager, $this->entityNamespace, $this->storageAdapter);
                 

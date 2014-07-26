@@ -16,6 +16,7 @@
 namespace ZF2DoctrineCrudHandler\Handler;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use ZF2DoctrineCrudHandler\Cache\RecacheAgent;
 
 /**
  * Abstract Class for Crud-Handlers
@@ -45,6 +46,8 @@ abstract class AbstractCrudHandler
      * @var \Zend\Cache\Storage\Adapter\AbstractAdapter
      */
     protected $storageAdapter;
+    
+    protected $recacheAgent;
     
     /**
      * @var string
@@ -209,5 +212,10 @@ abstract class AbstractCrudHandler
     protected function render404()
     {
         
+    }
+    
+    protected function initRecacheAgent() {
+        $eventManager = $this->objectManager->getEventManager();
+        $this->recacheAgent = new RecacheAgent($eventManager, $this->storageAdapter);
     }
 }

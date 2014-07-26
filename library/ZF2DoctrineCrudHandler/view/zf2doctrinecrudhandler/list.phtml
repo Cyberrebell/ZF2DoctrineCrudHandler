@@ -21,6 +21,9 @@
         <tr>
             <?php foreach ($entityData as $value): ?>
             <td>
+                <?php if (gettype($value) == 'boolean') {
+                    $value = ($value == true) ? 'yes' : 'no';
+                } ?>
                 <?php echo $value; ?>
             </td>
             <?php endforeach; ?>

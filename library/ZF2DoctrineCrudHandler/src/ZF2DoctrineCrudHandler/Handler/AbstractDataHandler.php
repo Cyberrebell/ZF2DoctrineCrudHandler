@@ -48,6 +48,7 @@ abstract class AbstractDataHandler extends AbstractCrudHandler
                 $this->entityNamespace = $entityNamespace;
                 $this->objectManager = $this->serviceManager->get($crudCfg['objectManager']);
                 $this->storageAdapter = $this->serviceManager->get($crudCfg['cache']);
+                $this->initRecacheAgent();
             } else {
                 throw new \Exception('"objectManager" and "cache" must be configurated in module.config -> "crudhandler"!');
             }

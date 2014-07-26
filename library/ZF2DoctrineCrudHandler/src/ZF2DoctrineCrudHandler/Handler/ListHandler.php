@@ -30,11 +30,10 @@ class ListHandler extends AbstractDataHandler
      */
     public function getViewModel()
     {
-//         $cacheKey = md5($this->entityNamespace);
-//         if ($this->storageAdapter->hasItem($cacheKey)) {
-//             $viewModel = unserialize($this->storageAdapter->getItem($cacheKey));
-//             return $viewModel;
-//         }
+        $viewModel = $this->recacheAgent->getViewModel('list', $this->entityNamespace, '');
+        if ($viewModel) {
+            return $viewModel;
+        }
         
         $this->viewModel = new ViewModel();
         
@@ -62,7 +61,7 @@ class ListHandler extends AbstractDataHandler
         $this->setupTemplate();
         $this->setupTitle();
         
-//         $this->storageAdapter->addItem($cacheKey, serialize($this->viewModel));
+        $this->recacheAgent->storeViewModel($this->viewModel, 'list', $this->entityNamespace, '');
         
         return $this->viewModel;
     }

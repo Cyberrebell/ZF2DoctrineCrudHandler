@@ -32,7 +32,7 @@ class DeleteHandler extends AbstractCrudHandler
     protected $entityId;
     
     /**
-     * Constructor for AbstractDataHandler
+     * Constructor for DeleteHandler
      * 
      * @param \Zend\ServiceManager\ServiceManager $sm              ServiceManager
      * @param string                              $entityNamespace Namespace of Entity to do operations for
@@ -48,6 +48,8 @@ class DeleteHandler extends AbstractCrudHandler
             if (array_key_exists('objectManager', $crudCfg)) {
                 $this->entityNamespace = $entityNamespace;
                 $this->objectManager = $this->serviceManager->get($crudCfg['objectManager']);
+                $this->storageAdapter = $this->serviceManager->get($crudCfg['cache']);
+                $this->initRecacheAgent();
             } else {
                 throw new \Exception('"objectManager" must be configurated in module.config -> "crudhandler"!');
             }

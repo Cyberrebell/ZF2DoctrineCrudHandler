@@ -64,7 +64,7 @@ class FormGenerator
     protected $passwordProperties = [];
     
     protected $toOneElement = self::TO_ONE_ELEMENT_SELECT;
-    protected $toManyElement = self::TO_MANY_ELEMENT_MULTISELECT;
+    protected $toManyElement = self::TO_MANY_ELEMENT_MULTICHECK;
     
     /**
      * Constructor for FormGenerator
