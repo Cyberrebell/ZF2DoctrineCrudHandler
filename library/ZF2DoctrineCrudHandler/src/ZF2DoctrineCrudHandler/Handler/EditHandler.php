@@ -38,13 +38,11 @@ class EditHandler extends AbstractFormHandler
      * 
      * @param int $id Entity-Id
      * 
-     * @return \ZF2DoctrineCrudHandler\Handler\EditHandler
+     * @return null
      */
     public function setEntityId($id)
     {
         $this->entityId = $id;
-    
-        return $this;
     }
     
     /**

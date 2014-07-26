@@ -30,6 +30,12 @@ class ListHandler extends AbstractDataHandler
      */
     public function getViewModel()
     {
+//         $cacheKey = md5($this->entityNamespace);
+//         if ($this->storageAdapter->hasItem($cacheKey)) {
+//             $viewModel = unserialize($this->storageAdapter->getItem($cacheKey));
+//             return $viewModel;
+//         }
+        
         $this->viewModel = new ViewModel();
         
         $entities = $this->objectManager->getRepository($this->entityNamespace)->findBy($this->criteria);
@@ -56,43 +62,44 @@ class ListHandler extends AbstractDataHandler
         $this->setupTemplate();
         $this->setupTitle();
         
+//         $this->storageAdapter->addItem($cacheKey, serialize($this->viewModel));
+        
         return $this->viewModel;
     }
     
     /**
      * 
      * @param array $criteria
-     * @return \Portalbasics\Model\CrudList\ListViewHandler
+     * 
+     * @return null
      */
     public function setCriteria(array $criteria)
     {
         $this->criteria = $criteria;
-    
-        return $this;
     }
     
     /**
      * Add icons like ['show' => '/showuser', 'edit' => '/edituser', 'delete' => '/deleteuser'] to list
+     * 
      * @param array $icons
-     * @return \Portalbasics\Model\CrudList\ListViewHandler
+     * 
+     * @return null
      */
     public function setIcons(array $icons)
     {
         $this->listIcons = $icons;
-        
-        return $this;
     }
     
     /**
      * select icons to display only in <thead>
+     * 
      * @param array $icons
-     * @return \Portalbasics\Model\CrudList\ListViewHandler
+     * 
+     * @return null
      */
     public function setHeadIcons(array $icons)
     {
         $this->listHeadIcons = $icons;
-        
-        return $this;
     }
 
     protected function getEntityProperties() {

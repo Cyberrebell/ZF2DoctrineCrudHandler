@@ -12,13 +12,12 @@ class ShowHandler extends AbstractDataHandler
     
     /**
      * @param int $id
-     * @return \ZF2DoctrineCrudHandler\Handler\EditHandler
+     * 
+     * @return null
      */
     public function setEntityId($id)
     {
         $this->entityId = $id;
-    
-        return $this;
     }
     
     /**

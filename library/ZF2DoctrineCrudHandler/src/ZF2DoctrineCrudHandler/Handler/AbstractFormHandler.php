@@ -34,24 +34,33 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
     
     /**
      * Constructor for AbstractFormHandler
-     * 
-     * @param \Doctrine\Common\Persistence\ObjectManager  $objectManager   Doctrine-Object-Manager
-     * @param string                                      $entityNamespace Namespace of Entity to do operations for
-     * @param \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter  Cache Adapter
+     *
+     * @param \Zend\ServiceManager\ServiceManager $sm              ServiceManager
+     * @param string                              $entityNamespace Namespace of Entity to do operations for
      */
     public function __construct(
-        \Doctrine\Common\Persistence\ObjectManager $objectManager,
-        $entityNamespace,
-        \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter
+            \Zend\ServiceManager\ServiceManager $sm,
+            $entityNamespace
     ) {
-        $this->objectManager = $objectManager;
-        $this->entityNamespace = $entityNamespace;
-        $this->storageAdapter = $storageAdapter;
-    
-        $this->formGenerator = new FormGenerator($this->objectManager, $this->entityNamespace, $this->storageAdapter);
-        
-        unset($this->propertyBlacklist);
-        unset($this->propertyWhitelist);
+        $this->serviceManager = $sm;
+        $cfg = $this->serviceManager->get('Config');
+        if (array_key_exists('crudhandler', $cfg)) {
+            $crudCfg = $cfg['crudhandler'];
+            if (array_key_exists('objectManager', $crudCfg) && array_key_exists('cache', $crudCfg)) {
+                $this->entityNamespace = $entityNamespace;
+                $this->objectManager = $this->serviceManager->get($crudCfg['objectManager']);
+                $this->storageAdapter = $this->serviceManager->get($crudCfg['cache']);
+                
+                $this->formGenerator = new FormGenerator($this->objectManager, $this->entityNamespace, $this->storageAdapter);
+                
+                unset($this->propertyBlacklist);
+                unset($this->propertyWhitelist);
+            } else {
+                throw new \Exception('"objectManager" and "cache" must be configurated in module.config -> "crudhandler"!');
+            }
+        } else {
+            throw new \Exception('"crudhandler" is not configurated in module.config!');
+        }
     }
     
     /**
@@ -60,13 +69,11 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
      * 
      * @param \Zend\Http\Request $request Request of Controller
      * 
-     * @return \ZF2DoctrineCrudHandler\Handler\AbstractFormHandler
+     * @return null
      */
     public function setRequest(\Zend\Http\Request $request)
     {
         $this->request = $request;
-        
-        return $this;
     }
     
     /**
@@ -74,13 +81,11 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
      * 
      * @param array:string $blacklist ['password', 'registrationDate']
      * 
-     * @return \ZF2DoctrineCrudHandler\Handler\AbstractFormHandler
+     * @return null
      */
     public function setPropertyBlacklist(array $blacklist)
     {
         $this->formGenerator->setPropertyBlacklist($blacklist);
-    
-        return $this;
     }
     
     /**
@@ -88,13 +93,11 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
      * 
      * @param array $whitelist ['name', 'age']
      * 
-     * @return \ZF2DoctrineCrudHandler\Handler\AbstractFormHandler
+     * @return null
      */
     public function setPropertyWhitelist(array $whitelist)
     {
         $this->formGenerator->setPropertyWhitelist($whitelist);
-    
-        return $this;
     }
     
     /**
@@ -102,13 +105,11 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
      * 
      * @param array:string $emailProperties ['admin@mail.com']
      * 
-     * @return \ZF2DoctrineCrudHandler\Handler\AbstractFormHandler
+     * @return null
      */
     public function setEmailProperties(array $emailProperties)
     {
         $this->formGenerator->setEmailProperties($emailProperties);
-        
-        return $this;
     }
     
     /**
@@ -116,12 +117,10 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
      * 
      * @param array $passwordProperties ['password']
      * 
-     * @return \ZF2DoctrineCrudHandler\Handler\AbstractFormHandler
+     * @return null
      */
     public function setPasswordProperties(array $passwordProperties)
     {
         $this->formGenerator->setPasswordProperties($passwordProperties);
-        
-        return $this;
     }
 }

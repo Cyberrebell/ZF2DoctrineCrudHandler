@@ -30,10 +30,12 @@ class RequestHandler
                 ) {
                     continue;
                 }
-                $setter = 'set' . ucfirst($elementName);
+                
                 switch ($properties[$elementName]->getType()) {
                     case Property::PROPERTY_TYPE_COLUMN:
                         $value = $elementData;
+                        $setter = 'set' . ucfirst($elementName);
+                        $entity->$setter($value);
                         break;
                     case Property::PROPERTY_TYPE_TOONE:
                         $dbResult = $objectManager->getRepository($properties[$elementName]->getTargetEntity())->find($elementData);
@@ -41,18 +43,22 @@ class RequestHandler
                             continue 2;
                         }
                         $value = $dbResult;
+                        $setter = 'set' . ucfirst($elementName);
+                        $entity->$setter($value);
                         break;
                     case Property::PROPERTY_TYPE_TOMANY:
                         $dbResult = $objectManager->getRepository($properties[$elementName]->getTargetEntity())->findById($elementData);
                         if ($dbResult === null) {
                             continue 2;
                         }
-                        $value = $dbResult;
+                        $adder = 'add' . ucfirst(substr($elementName, 0, -1));
+                        foreach ($dbResult as $result) {
+                            $entity->$adder($result);
+                        }
                         break;
                     default:
                         continue 2;
                 }
-                $entity->$setter($value);
             }
             $objectManager->persist($entity);
             $objectManager->flush();
@@ -121,6 +127,7 @@ class RequestHandler
             if ($entity === null) {
                 return false;
             }
+            $properties = EntityReader::getProperties($entityNamespace);
             foreach ($form->getElements() as $element) {
                 if (
                     !($element instanceof \Zend\Form\Element\Password)
@@ -128,7 +135,18 @@ class RequestHandler
                 ) {
                     $name = $element->getAttribute('name');
                     $getter = 'get' . ucfirst($name);
-                    $element->setValue($entity->$getter());
+                    $value = $entity->$getter();
+                    if ($properties[$name]->getType() == Property::PROPERTY_TYPE_TOMANY) {
+                        if ($value === null) {
+                            continue;
+                        }
+                        $multiValues = [];
+                        foreach ($value as $refEntity) {
+                            $multiValues[] = $refEntity->getId();
+                        }
+                        $value = $multiValues;
+                    }
+                    $element->setValue($value);
                 }
             }
         }

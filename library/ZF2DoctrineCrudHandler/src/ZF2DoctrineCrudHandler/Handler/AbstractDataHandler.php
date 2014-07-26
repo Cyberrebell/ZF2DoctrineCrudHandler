@@ -31,20 +31,29 @@ use ZF2DoctrineCrudHandler\Reader\Property;
 abstract class AbstractDataHandler extends AbstractCrudHandler
 {
     /**
-     * Constructor for AbstractFormHandler
+     * Constructor for AbstractDataHandler
      * 
-     * @param \Doctrine\Common\Persistence\ObjectManager  $objectManager   Doctrine-Object-Manager
-     * @param string                                      $entityNamespace Namespace of Entity to do operations for
-     * @param \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter  Cache Adapter
+     * @param \Zend\ServiceManager\ServiceManager $sm              ServiceManager
+     * @param string                              $entityNamespace Namespace of Entity to do operations for
      */
     public function __construct(
-        \Doctrine\Common\Persistence\ObjectManager $objectManager,
-        $entityNamespace,
-        \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter
+        \Zend\ServiceManager\ServiceManager $sm,
+        $entityNamespace
     ) {
-        $this->objectManager = $objectManager;
-        $this->entityNamespace = $entityNamespace;
-        $this->storageAdapter = $storageAdapter;
+        $this->serviceManager = $sm;
+        $cfg = $this->serviceManager->get('Config');
+        if (array_key_exists('crudhandler', $cfg)) {
+            $crudCfg = $cfg['crudhandler'];
+            if (array_key_exists('objectManager', $crudCfg) && array_key_exists('cache', $crudCfg)) {
+                $this->entityNamespace = $entityNamespace;
+                $this->objectManager = $this->serviceManager->get($crudCfg['objectManager']);
+                $this->storageAdapter = $this->serviceManager->get($crudCfg['cache']);
+            } else {
+                throw new \Exception('"objectManager" and "cache" must be configurated in module.config -> "crudhandler"!');
+            }
+        } else {
+            throw new \Exception('"crudhandler" is not configurated in module.config!');
+        }
     }
     
     /**
@@ -76,6 +85,10 @@ abstract class AbstractDataHandler extends AbstractCrudHandler
                 }
                 $getter = 'get' . ucfirst($name);
                 $value = $entity->$getter();
+                if ($value === null) {
+                    $dataToDisplay[$name] = null;
+                    continue;
+                }
                 switch ($property->getType()) {
                 	case Property::PROPERTY_TYPE_COLUMN:
                 	    break;

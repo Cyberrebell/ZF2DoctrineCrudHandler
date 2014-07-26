@@ -1,3 +1,13 @@
+label > span{
+	font-weight:bold;
+}
+
+label > div{
+	border:1px #a0a0a0 solid;
+    border-radius:3px;
+    padding:4px;
+}
+
 .crud-list{
 	border:1px black solid;
     border-radius:3px;
@@ -17,6 +27,7 @@
 .crud-list td{
     background-color:#f3f3f3;
     border-radius:2px;
+    padding:4px;
 }
 
 .crudlist-icon{

@@ -28,6 +28,8 @@ use Zend\Form\Element\Text;
 use Zend\Form\Element\Email;
 use Zend\Form\Element\Password;
 use Zend\Form\Element\Select;
+use Zend\Form\Element\Radio;
+use Zend\Form\Element\MultiCheckbox;
 
 /**
  * Generates Zend Form Object from Entity-Annotations
@@ -86,13 +88,11 @@ class FormGenerator
      * 
      * @param array:string $blacklist ['password', 'registrationDate']
      * 
-     * @return \ZF2DoctrineCrudHandler\Form\FormGenerator
+     * @return null
      */
     public function setPropertyBlacklist(array $blacklist)
     {
         $this->propertyBlacklist = $blacklist;
-        
-        return $this;
     }
     
     /**
@@ -100,13 +100,11 @@ class FormGenerator
      * 
      * @param array $whitelist ['name', 'age']
      * 
-     * @return \ZF2DoctrineCrudHandler\Form\FormGenerator
+     * @return null
      */
     public function setPropertyWhitelist(array $whitelist)
     {
         $this->propertyWhitelist = $whitelist;
-        
-        return $this;
     }
     
     /**
@@ -114,13 +112,11 @@ class FormGenerator
      * 
      * @param array:string $emailProperties ['admin@mail.com']
      * 
-     * @return \ZF2DoctrineCrudHandler\Form\FormGenerator
+     * @return null
      */
     public function setEmailProperties(array $emailProperties)
     {
         $this->emailProperties = $emailProperties;
-        
-        return $this;
     }
     
     /**
@@ -128,13 +124,11 @@ class FormGenerator
      * 
      * @param array $passwordProperties ['password']
      * 
-     * @return \ZF2DoctrineCrudHandler\Form\FormGenerator
+     * @return null
      */
     public function setPasswordProperties(array $passwordProperties)
     {
         $this->passwordProperties = $passwordProperties;
-        
-        return $this;
     }
     
     /**
@@ -242,7 +236,11 @@ class FormGenerator
         \Zend\Form\Form $form,
         \ZF2DoctrineCrudHandler\Reader\Property $property
     ) {
-        $element = new Select($property->getName());
+        if ($this->toOneElement == $this::TO_ONE_ELEMENT_SELECT) {
+            $element = new Select($property->getName());
+        } else {
+            $element = new Radio($property->getName());
+        }
         
         $options = $this->getValueOptionsFromEntity($property->getTargetEntity());
         $element->setValueOptions($options);
@@ -263,8 +261,12 @@ class FormGenerator
         \Zend\Form\Form $form,
         \ZF2DoctrineCrudHandler\Reader\Property $property
     ) {
-        $element = new Select($property->getName());
-        $element->setAttribute('multiple', true);
+        if ($this->toManyElement == $this::TO_MANY_ELEMENT_MULTISELECT) {
+            $element = new Select($property->getName());
+            $element->setAttribute('multiple', true);
+        } else {
+            $element = new MultiCheckbox($property->getName());
+        }
         
         $options = $this->getValueOptionsFromEntity($property->getTargetEntity());
         $element->setValueOptions($options);

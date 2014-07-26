@@ -32,6 +32,11 @@ abstract class AbstractCrudHandler
     const DEFAULT_TEMPLATE = '';
     
     /**
+     * @var \Zend\ServiceManager\ServiceManager
+     */
+    protected $serviceManager;
+    
+    /**
      * @var \Doctrine\Common\Persistence\ObjectManager
      */
     protected $objectManager;
@@ -79,23 +84,6 @@ abstract class AbstractCrudHandler
     protected $entityFilter;
     
     /**
-     * Constructor for AbstractCrudHandler
-     * 
-     * @param \Doctrine\Common\Persistence\ObjectManager  $objectManager   Doctrine-Object-Manager
-     * @param string                                      $entityNamespace Namespace of Entity to do operations for
-     * @param \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter  Cache Adapter
-     */
-    public function __construct(
-        \Doctrine\Common\Persistence\ObjectManager $objectManager,
-        $entityNamespace,
-        \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter
-    ) {
-        $this->objectManager = $objectManager;
-        $this->entityNamespace = $entityNamespace;
-        $this->storageAdapter = $storageAdapter;
-    }
-    
-    /**
      * Generates a ViewModel which is ready to render
      * 
      * @return \Zend\View\Model\ViewModel
@@ -106,13 +94,11 @@ abstract class AbstractCrudHandler
      * setup viewmodel to use the action-related view template
      * else CrudList uses its default template you can style as you need using css
      * 
-     * @return \ZF2DoctrineCrudHandler\Handler\AbstractCrudHandler
+     * @return null
      */
     public function useCustomTemplate()
     {
         $this->useCustomTemplate = true;
-        
-        return $this;
     }
     
     /**
@@ -121,13 +107,11 @@ abstract class AbstractCrudHandler
      * 
      * @param string $title simple string
      * 
-     * @return \ZF2DoctrineCrudHandler\Handler\AbstractCrudHandler
+     * @return null
      */
     public function setTitle($title)
     {
         $this->title = $title;
-        
-        return $this;
     }
     
     /**
@@ -135,13 +119,11 @@ abstract class AbstractCrudHandler
      * 
      * @param array $blacklist ['password', 'registrationDate']
      * 
-     * @return \ZF2DoctrineCrudHandler\Handler\AbstractCrudHandler
+     * @return null
      */
     public function setPropertyBlacklist(array $blacklist)
     {
         $this->propertyBlacklist = $blacklist;
-    
-        return $this;
     }
     
     /**
@@ -149,13 +131,11 @@ abstract class AbstractCrudHandler
      * 
      * @param array $whitelist ['name', 'age']
      * 
-     * @return \ZF2DoctrineCrudHandler\Handler\AbstractCrudHandler
+     * @return null
      */
     public function setPropertyWhitelist(array $whitelist)
     {
         $this->propertyWhitelist = $whitelist;
-    
-        return $this;
     }
     
     /**
@@ -165,13 +145,11 @@ abstract class AbstractCrudHandler
      * 
      * @param \Closure $filter function($entity){ ... }
      * 
-     * @return \Portalbasics\Model\CrudList\AbstractCrudHandler
+     * @return null
      */
     public function setEntityFilter(\Closure $filter)
     {
         $this->entityFilter = $filter;
-        
-        return $this;
     }
     
     /**
@@ -217,7 +195,8 @@ abstract class AbstractCrudHandler
     protected function setupTitle()
     {
         if ($this->title === null) {
-            $this->title = end(explode('\\', $this->entityNamespace));
+            $segments = explode('\\', $this->entityNamespace);
+            $this->title = end($segments);
         }
         $this->viewModel->setVariable('title', $this->title);
     }

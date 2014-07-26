@@ -32,15 +32,28 @@ class DeleteHandler extends AbstractCrudHandler
     protected $entityId;
     
     /**
-     * Constructor for DeleteHandler
+     * Constructor for AbstractDataHandler
      * 
-     * @param \Doctrine\Common\Persistence\ObjectManager $objectManager   Doctrine-Object-Manager
-     * @param string                                     $entityNamespace Namespace of Entity to do operations for
+     * @param \Zend\ServiceManager\ServiceManager $sm              ServiceManager
+     * @param string                              $entityNamespace Namespace of Entity to do operations for
      */
-    public function __construct(\Doctrine\Common\Persistence\ObjectManager $objectManager, $entityNamespace)
-    {
-        $this->objectManager = $objectManager;
-        $this->entityNamespace = $entityNamespace;
+    public function __construct(
+        \Zend\ServiceManager\ServiceManager $sm,
+        $entityNamespace
+    ) {
+        $this->serviceManager = $sm;
+        $cfg = $this->serviceManager->get('Config');
+        if (array_key_exists('crudhandler', $cfg)) {
+            $crudCfg = $cfg['crudhandler'];
+            if (array_key_exists('objectManager', $crudCfg)) {
+                $this->entityNamespace = $entityNamespace;
+                $this->objectManager = $this->serviceManager->get($crudCfg['objectManager']);
+            } else {
+                throw new \Exception('"objectManager" must be configurated in module.config -> "crudhandler"!');
+            }
+        } else {
+            throw new \Exception('"crudhandler" is not configurated in module.config!');
+        }
     }
     
     /**
@@ -48,13 +61,11 @@ class DeleteHandler extends AbstractCrudHandler
      * 
      * @param int $id Entity-Id
      * 
-     * @return \ZF2DoctrineCrudHandler\Handler\DeleteHandler
+     * @return null
      */
     public function setEntityId($id)
     {
         $this->entityId = $id;
-    
-        return $this;
     }
     
     /**

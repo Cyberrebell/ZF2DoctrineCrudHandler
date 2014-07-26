@@ -2,8 +2,11 @@
 <?php foreach ($dataToDisplay as $label => $data): ?>
 <div>
     <label>
-        <span><?php echo $label; ?>:</span>
-        <div><?php echo $data; ?></div>
+        <span><?php echo $this->translate($label); ?>:</span>
+        <?php if (gettype($data) == 'boolean') {
+            $data = ($data == true) ? 'yes' : 'no';
+        } ?>
+        <div><?php echo $this->translate($data); ?></div>
     </label>
 </div>
 <?php endforeach; ?>
