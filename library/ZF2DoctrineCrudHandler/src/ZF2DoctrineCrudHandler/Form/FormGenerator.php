@@ -269,6 +269,9 @@ class FormGenerator
         }
         
         $options = $this->getValueOptionsFromEntity($property->getTargetEntity());
+        if (empty($options)) {
+            return false;
+        }
         $element->setValueOptions($options);
         
         $element->setLabel($property->getName());
