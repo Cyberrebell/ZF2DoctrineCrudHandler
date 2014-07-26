@@ -1,5 +1,5 @@
 {
-    "name": "cyberrebell/ZF2DoctrineCrudHandler",
+    "name": "cyberrebell/zf2doctrine-crudhandler",
     "description": "CrudHandler for Zend Framework 2 using Doctrine-Module",
     "authors": [
         {
