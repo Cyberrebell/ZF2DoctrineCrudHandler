@@ -20,7 +20,7 @@
         "php": ">=5.4.4",
         "zendframework/zendframework": ">=2.3.0",
         "doctrine/doctrine-orm-module": "0.8.*",
-        "Cyberrebell/ZF2ValidatorBuilder": "dev-master"
+        "cyberrebell/zf2validator-builder": "dev-master"
     },
     "autoload": {
         "psr-0": {
