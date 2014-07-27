@@ -40,6 +40,7 @@ class ListHandler extends AbstractDataHandler
         $this->viewModel = new ViewModel();
         
         $entities = $this->objectManager->getRepository($this->entityNamespace)->findBy($this->criteria);
+        $entities = $this->filterEntities($entities);
         
         $entitiesData = [];
         foreach ($entities as $entity) {

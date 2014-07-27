@@ -36,9 +36,6 @@ class ShowHandler extends AbstractDataHandler
         $this->viewModel = new ViewModel();
         
         $dataToDisplay = $this->getEntityData($this->entityId);
-        if ($dataToDisplay === false) {
-            $this->render404();
-        }
         $this->viewModel->setVariable('dataToDisplay', $dataToDisplay);
         
         $this->setupTemplate();

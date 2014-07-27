@@ -86,10 +86,9 @@ abstract class AbstractCrudHandler
      */
     protected $entityFilter;
     
+    protected $propertiesOutputs = [];
+    
     protected $useCache;
-
-    protected $redirect;
-    protected $redirectRoute;
     
     /**
      * Constructor for AbstractCrudHandler
@@ -194,22 +193,10 @@ abstract class AbstractCrudHandler
     {
         $this->entityFilter = $filter;
     }
-
-    /**
-     * Set the redirect that will be used if data is saved successfully
-     *
-     * @param \Zend\Mvc\Controller\Plugin\Redirect $redirect
-     * @param string $route
-     */
-    public function setSuccessRedirect(\Zend\Mvc\Controller\Plugin\Redirect $redirect, $route)
-    {
-        $this->redirect = $redirect;
-        $this->redirectRoute = $route;
-    }
     
-    protected function getRedirect()
+    public function setPropertiesOutputs(array $outputs)
     {
-        return $this->redirect->toRoute($this->redirectRoute);
+        $this->propertiesOutputs = $outputs;
     }
     
     protected function prepare() {
@@ -217,7 +204,29 @@ abstract class AbstractCrudHandler
     }
     
     /**
-     * Use given entityFilter to check if entity is allowed
+     * Use given entityFilter to get only allowed
+     * 
+     * @param array $entities Input Entities
+     * 
+     * @return array $entities filtered by filterfunction
+     */
+    protected function filterEntities($entities)
+    {
+        if ($this->entityFilter !== null) {
+            $filter = $this->entityFilter;
+            $filteredEntities = [];
+            foreach ($entities as $entity) {
+                if ($filter($entity)) {
+                    $filteredEntities[] = $entity;
+                }
+            }
+            return $filteredEntities;
+        } else {
+            return $entities;
+        }
+    }
+    
+    /**
      * 
      * @param object $entity Doctrine-Entity
      * 
@@ -225,10 +234,10 @@ abstract class AbstractCrudHandler
      */
     protected function filterEntity($entity) {
         $filter = $this->entityFilter;
-        if ($filter !== null && $filter($entity) === false) {
-            return false;
-        } else {
+        if ($filter($entity)) {
             return $entity;
+        } else {
+            return false;
         }
     }
 

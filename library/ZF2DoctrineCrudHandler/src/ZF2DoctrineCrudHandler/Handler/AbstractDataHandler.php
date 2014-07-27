@@ -40,9 +40,8 @@ abstract class AbstractDataHandler extends AbstractCrudHandler
     protected function getEntityData($entityId)
     {
         $entity = $this->objectManager->getRepository($this->entityNamespace)->find($entityId);
-        $entity = $this->filterEntity($entity);
-        if ($entity === null || $entity === false) {//check if entity with requested id exists
-            return false;
+        if ($entity === null) {//check if entity with requested id exists
+            $this->render404();
         } else {
             $useBlacklist = (count($this->propertyBlacklist) > 0) ? true : false;
             $useWhitelist = (count($this->propertyWhitelist) > 0) ? true : false;
@@ -60,29 +59,35 @@ abstract class AbstractDataHandler extends AbstractCrudHandler
                 }
                 $getter = 'get' . ucfirst($name);
                 $value = $entity->$getter();
-                if ($value === null) {
-                    $dataToDisplay[$name] = null;
-                    continue;
-                }
-                switch ($property->getType()) {
-                	case Property::PROPERTY_TYPE_COLUMN:
-                	    break;
-                	case Property::PROPERTY_TYPE_TOONE:
-                	    $targetEntity = $property->getTargetEntity();
-                	    $targetPropertsGetter = 'get' . ucfirst($targetEntity::DISPLAY_NAME_PROPERTY);
-                	    $value = $value->$targetPropertsGetter();
-                	    break;
-                	case Property::PROPERTY_TYPE_TOMANY:
-                	    $targetEntity = $property->getTargetEntity();
-                	    $targetPropertsGetter = 'get' . ucfirst($targetEntity::DISPLAY_NAME_PROPERTY);
-                	    $listString = '';
-                	    foreach ($value as $targetEntity) {
-                	        $listString .= $targetEntity->$targetPropertsGetter() . ', ';
-                	    }
-                	    $value = substr($listString, 0, -2);
-                	    break;
-                	default:
-                	    continue 2;
+                
+                if (array_key_exists($name, $this->propertiesOutputs)) {//use injected output Closure
+                    $function = $this->propertiesOutputs[$name];
+                    $value = $function($value);
+                } else {
+                    if ($value === null) {
+                        $dataToDisplay[$name] = null;
+                        continue;
+                    }
+                    switch ($property->getType()) {
+                    	case Property::PROPERTY_TYPE_COLUMN:
+                    	    break;
+                    	case Property::PROPERTY_TYPE_TOONE:
+                    	    $targetEntity = $property->getTargetEntity();
+                    	    $targetPropertsGetter = 'get' . ucfirst($targetEntity::DISPLAY_NAME_PROPERTY);
+                    	    $value = $value->$targetPropertsGetter();
+                    	    break;
+                    	case Property::PROPERTY_TYPE_TOMANY:
+                    	    $targetEntity = $property->getTargetEntity();
+                    	    $targetPropertsGetter = 'get' . ucfirst($targetEntity::DISPLAY_NAME_PROPERTY);
+                    	    $listString = '';
+                    	    foreach ($value as $targetEntity) {
+                    	        $listString .= $targetEntity->$targetPropertsGetter() . ', ';
+                    	    }
+                    	    $value = substr($listString, 0, -2);
+                    	    break;
+                    	default:
+                    	    continue 2;
+                    }
                 }
                 $dataToDisplay[$name] = $value;
             }
