@@ -72,6 +72,7 @@ class RequestHandler
      * @param \Zend\Form\Form $form
      * @param \Zend\Http\Request $request
      * @param int $entityId
+     * @param \Closure $filter
      * @return boolean
      */
     public static function handleEdit(
@@ -79,12 +80,14 @@ class RequestHandler
         $entityNamespace,
         \Zend\Form\Form $form,
         \Zend\Http\Request $request,
-        $entityId
+        $entityId,
+        $filter
     ) {
         if ($formData = self::getValidData($form, $request)) {
             $properties = EntityReader::getProperties($entityNamespace);
             $entity = $objectManager->getRepository($entityNamespace)->find($entityId);
-            if ($entity === null) {
+            $entity = self::filterEntity($filter, $entity);
+            if ($entity === null || $entity === false) {//check if entity with requested id exists
                 return false;
             }
             foreach ($formData as $elementName => $elementData) {
@@ -124,7 +127,8 @@ class RequestHandler
             return true;
         } else {    //no valid post
             $entity = $objectManager->getRepository($entityNamespace)->find($entityId);
-            if ($entity === null) {
+            $entity = self::filterEntity($filter, $entity);
+            if ($entity === null || $entity === false) {//check if entity with requested id exists
                 return false;
             }
             $properties = EntityReader::getProperties($entityNamespace);
@@ -156,15 +160,17 @@ class RequestHandler
      * @param \Doctrine\Common\Persistence\ObjectManager $objectManager
      * @param string $entityNamespace
      * @param id $entityId
+     * @param \Closure $filter
      * @return boolean
      */
     public static function handleDelete(
         \Doctrine\Common\Persistence\ObjectManager $objectManager,
         $entityNamespace,
-        $entityId
+        $entityId,
+        $filter
     ) {
         $entity = $objectManager->getRepository($entityNamespace)->find($entityId);
-        if ($entity === null) {
+        if ($entity === null || self::filterEntity($filter, $entity) === false) {
             return false;
         }
         $objectManager->remove($entity);
@@ -187,5 +193,20 @@ class RequestHandler
             }
         }
         return false;
+    }
+    
+    /**
+     * Use given entityFilter to check if entity is allowed
+     * 
+     * @param object $entity Doctrine-Entity
+     * 
+     * @return object|boolean
+     */
+    protected static function filterEntity($filter, $entity) {
+        if ($filter !== null && $filter($entity) === false) {
+            return false;
+        } else {
+            return $entity;
+        }
     }
 }

@@ -30,6 +30,8 @@ use ZF2DoctrineCrudHandler\Request\RequestHandler;
 class DeleteHandler extends AbstractCrudHandler
 {
     protected $entityId;
+    protected $redirect;
+    protected $redirectRoute;
     
     /**
      * Set the id of entity to delete
@@ -44,12 +46,32 @@ class DeleteHandler extends AbstractCrudHandler
     }
     
     /**
+     * Set the redirect that will be used if data is saved successfully
+     * 
+     * @param \Zend\Mvc\Controller\Plugin\Redirect $redirect
+     * @param string $route
+     */
+    public function setSuccessRedirect(\Zend\Mvc\Controller\Plugin\Redirect $redirect, $route)
+    {
+        $this->redirect = $redirect;
+        $this->redirectRoute = $route;
+    }
+    
+    /**
      * Generates a ViewModel which is ready to render
      *
      * @return \Zend\View\Model\ViewModel
      */
-    public function getViewModel()
+	public function getViewModel()
     {
-        return RequestHandler::handleDelete($this->objectManager, $this->entityNamespace, $this->entityId);
+        RequestHandler::handleDelete($this->objectManager, $this->entityNamespace, $this->entityId, $this->entityFilter);
+        if ($this->redirect != null) {
+            return $this->getRedirect();
+        }
+    }
+    
+    protected function getRedirect()
+    {
+        return $this->redirect->toRoute($this->redirectRoute);
     }
 }

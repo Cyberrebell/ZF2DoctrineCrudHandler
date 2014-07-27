@@ -40,8 +40,9 @@ abstract class AbstractDataHandler extends AbstractCrudHandler
     protected function getEntityData($entityId)
     {
         $entity = $this->objectManager->getRepository($this->entityNamespace)->find($entityId);
-        if ($entity === null) {//check if entity with requested id exists
-            $this->render404();
+        $entity = $this->filterEntity($entity);
+        if ($entity === null || $entity === false) {//check if entity with requested id exists
+            return false;
         } else {
             $useBlacklist = (count($this->propertyBlacklist) > 0) ? true : false;
             $useWhitelist = (count($this->propertyWhitelist) > 0) ? true : false;

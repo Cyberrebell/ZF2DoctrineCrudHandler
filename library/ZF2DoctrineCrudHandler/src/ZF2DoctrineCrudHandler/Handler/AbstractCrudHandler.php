@@ -204,29 +204,6 @@ abstract class AbstractCrudHandler
     }
     
     /**
-     * Use given entityFilter to get only allowed
-     * 
-     * @param array $entities Input Entities
-     * 
-     * @return array $entities filtered by filterfunction
-     */
-    protected function filterEntities($entities)
-    {
-        if ($this->entityFilter !== null) {
-            $filter = $this->entityFilter;
-            $filteredEntities = [];
-            foreach ($entities as $entity) {
-                if ($filter($entity)) {
-                    $filteredEntities[] = $entity;
-                }
-            }
-            return $filteredEntities;
-        } else {
-            return $entities;
-        }
-    }
-    
-    /**
      * 
      * @param object $entity Doctrine-Entity
      * 
@@ -234,10 +211,10 @@ abstract class AbstractCrudHandler
      */
     protected function filterEntity($entity) {
         $filter = $this->entityFilter;
-        if ($filter($entity)) {
-            return $entity;
-        } else {
+        if ($filter != null && $filter($entity) === false) {
             return false;
+        } else {
+            return $entity;
         }
     }
 
