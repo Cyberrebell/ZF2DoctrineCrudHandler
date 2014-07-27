@@ -12,12 +12,12 @@ class ListHandler extends AbstractDataHandler
     /**
      * @var array
      */
-    protected $listIcons;
+    protected $listIcons = [];
     
     /**
      * @var array
      */
-    protected $listHeadIcons;
+    protected $listHeadIcons = [];
     
     /**
      * @var array
@@ -30,9 +30,11 @@ class ListHandler extends AbstractDataHandler
      */
     public function getViewModel()
     {
-        $viewModel = $this->recacheAgent->getViewModel('list', $this->entityNamespace, '');
-        if ($viewModel) {
-            return $viewModel;
+        if ($this->useCache) {
+            $viewModel = $this->recacheAgent->getViewModel('list', $this->entityNamespace, '');
+            if ($viewModel) {
+                return $viewModel;
+            }
         }
         
         $this->viewModel = new ViewModel();
@@ -53,15 +55,14 @@ class ListHandler extends AbstractDataHandler
             $this->listIcons = ['show' => '', 'edit' => '', 'delete' => ''];
         }
         $this->viewModel->setVariable('listIcons', $this->listIcons);
-        if ($this->listHeadIcons === null) {
-            $this->listHeadIcons = ['add' => ''];
-        }
         $this->viewModel->setVariable('listHeadIcons', $this->listHeadIcons);
         
         $this->setupTemplate();
         $this->setupTitle();
         
-        $this->recacheAgent->storeViewModel($this->viewModel, 'list', $this->entityNamespace, '');
+        if ($this->useCache) {
+            $this->recacheAgent->storeViewModel($this->viewModel, 'list', $this->entityNamespace, '');
+        }
         
         return $this->viewModel;
     }

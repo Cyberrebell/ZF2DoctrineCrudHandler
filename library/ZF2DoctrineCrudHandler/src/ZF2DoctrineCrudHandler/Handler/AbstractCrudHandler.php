@@ -86,6 +86,43 @@ abstract class AbstractCrudHandler
      */
     protected $entityFilter;
     
+    protected $useCache;
+    
+    /**
+     * Constructor for AbstractCrudHandler
+     *
+     * @param \Zend\ServiceManager\ServiceManager $sm              ServiceManager
+     * @param string                              $entityNamespace Namespace of Entity to do operations for
+     */
+    public function __construct(
+            \Zend\ServiceManager\ServiceManager $sm,
+            $entityNamespace
+    ) {
+        $this->serviceManager = $sm;
+        $cfg = $this->serviceManager->get('Config');
+        if (array_key_exists('crudhandler', $cfg)) {
+            $crudCfg = $cfg['crudhandler'];
+            if (array_key_exists('objectManager', $crudCfg)) {
+                $this->entityNamespace = $entityNamespace;
+                $this->objectManager = $this->serviceManager->get($crudCfg['objectManager']);
+                
+                if (array_key_exists('cache', $crudCfg)) {
+                    $this->storageAdapter = $this->serviceManager->get($crudCfg['cache']);
+                    $this->initRecacheAgent();
+                    $this->useCache = true;
+                } else {
+                    $this->useCache = false;
+                }
+                
+                $this->prepare();
+            } else {
+                throw new \Exception('"objectManager" must be configurated in module.config -> "crudhandler"!');
+            }
+        } else {
+            throw new \Exception('"crudhandler" is not configurated in module.config!');
+        }
+    }
+    
     /**
      * Generates a ViewModel which is ready to render
      * 
@@ -155,6 +192,10 @@ abstract class AbstractCrudHandler
         $this->entityFilter = $filter;
     }
     
+    protected function prepare() {
+        
+    }
+    
     /**
      * Use given entityFilter to get only allowed
      * 
@@ -175,6 +216,21 @@ abstract class AbstractCrudHandler
             return $filteredEntities;
         } else {
             return $entities;
+        }
+    }
+    
+    /**
+     * 
+     * @param object $entity Doctrine-Entity
+     * 
+     * @return object|boolean
+     */
+    protected function filterEntity($entity) {
+        $filter = $this->entityFilter;
+        if ($filter($entity)) {
+            return $entity;
+        } else {
+            return false;
         }
     }
 

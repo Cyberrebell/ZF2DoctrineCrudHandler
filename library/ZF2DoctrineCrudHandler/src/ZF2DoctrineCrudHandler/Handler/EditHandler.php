@@ -52,9 +52,11 @@ class EditHandler extends AbstractFormHandler
      */
     public function getViewModel()
     {
-        $viewModel = $this->recacheAgent->getViewModel('edit', $this->entityNamespace, $this->entityId);
-        if ($viewModel) {
-            return $viewModel;
+        if ($this->useCache) {
+            $viewModel = $this->recacheAgent->getViewModel('edit', $this->entityNamespace, $this->entityId);
+            if ($viewModel) {
+                return $viewModel;
+            }
         }
         
         $this->viewModel = new ViewModel();
@@ -73,7 +75,9 @@ class EditHandler extends AbstractFormHandler
         $this->setupTemplate();
         $this->setupTitle();
         
-        $this->recacheAgent->storeViewModel($this->viewModel, 'edit', $this->entityNamespace, $this->entityId);
+        if ($this->useCache) {
+            $this->recacheAgent->storeViewModel($this->viewModel, 'edit', $this->entityNamespace, $this->entityId);
+        }
         
         return $this->viewModel;
     }

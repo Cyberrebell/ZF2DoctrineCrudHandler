@@ -31,33 +31,6 @@ use ZF2DoctrineCrudHandler\Reader\Property;
 abstract class AbstractDataHandler extends AbstractCrudHandler
 {
     /**
-     * Constructor for AbstractDataHandler
-     * 
-     * @param \Zend\ServiceManager\ServiceManager $sm              ServiceManager
-     * @param string                              $entityNamespace Namespace of Entity to do operations for
-     */
-    public function __construct(
-        \Zend\ServiceManager\ServiceManager $sm,
-        $entityNamespace
-    ) {
-        $this->serviceManager = $sm;
-        $cfg = $this->serviceManager->get('Config');
-        if (array_key_exists('crudhandler', $cfg)) {
-            $crudCfg = $cfg['crudhandler'];
-            if (array_key_exists('objectManager', $crudCfg) && array_key_exists('cache', $crudCfg)) {
-                $this->entityNamespace = $entityNamespace;
-                $this->objectManager = $this->serviceManager->get($crudCfg['objectManager']);
-                $this->storageAdapter = $this->serviceManager->get($crudCfg['cache']);
-                $this->initRecacheAgent();
-            } else {
-                throw new \Exception('"objectManager" and "cache" must be configurated in module.config -> "crudhandler"!');
-            }
-        } else {
-            throw new \Exception('"crudhandler" is not configurated in module.config!');
-        }
-    }
-    
-    /**
      * 
      * 
      * @param int $entityId

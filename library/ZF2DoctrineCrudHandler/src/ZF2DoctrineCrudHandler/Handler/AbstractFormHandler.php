@@ -33,38 +33,6 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
     protected $request;
     
     /**
-     * Constructor for AbstractFormHandler
-     *
-     * @param \Zend\ServiceManager\ServiceManager $sm              ServiceManager
-     * @param string                              $entityNamespace Namespace of Entity to do operations for
-     */
-    public function __construct(
-            \Zend\ServiceManager\ServiceManager $sm,
-            $entityNamespace
-    ) {
-        $this->serviceManager = $sm;
-        $cfg = $this->serviceManager->get('Config');
-        if (array_key_exists('crudhandler', $cfg)) {
-            $crudCfg = $cfg['crudhandler'];
-            if (array_key_exists('objectManager', $crudCfg) && array_key_exists('cache', $crudCfg)) {
-                $this->entityNamespace = $entityNamespace;
-                $this->objectManager = $this->serviceManager->get($crudCfg['objectManager']);
-                $this->storageAdapter = $this->serviceManager->get($crudCfg['cache']);
-                $this->initRecacheAgent();
-                
-                $this->formGenerator = new FormGenerator($this->objectManager, $this->entityNamespace, $this->storageAdapter);
-                
-                unset($this->propertyBlacklist);
-                unset($this->propertyWhitelist);
-            } else {
-                throw new \Exception('"objectManager" and "cache" must be configurated in module.config -> "crudhandler"!');
-            }
-        } else {
-            throw new \Exception('"crudhandler" is not configurated in module.config!');
-        }
-    }
-    
-    /**
      * Set Request which may be POST
      * needed to handle POST's
      * 
@@ -123,5 +91,9 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
     public function setPasswordProperties(array $passwordProperties)
     {
         $this->formGenerator->setPasswordProperties($passwordProperties);
+    }
+    
+    protected function prepare() {
+        $this->formGenerator = new FormGenerator($this->objectManager, $this->entityNamespace, $this->storageAdapter);
     }
 }

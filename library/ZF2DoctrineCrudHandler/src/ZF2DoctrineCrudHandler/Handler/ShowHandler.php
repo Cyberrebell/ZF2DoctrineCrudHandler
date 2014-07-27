@@ -26,9 +26,11 @@ class ShowHandler extends AbstractDataHandler
      */
     public function getViewModel()
     {
-        $viewModel = $this->recacheAgent->getViewModel('show', $this->entityNamespace, $this->entityId);
-        if ($viewModel) {
-            return $viewModel;
+        if ($this->useCache) {
+            $viewModel = $this->recacheAgent->getViewModel('show', $this->entityNamespace, $this->entityId);
+            if ($viewModel) {
+                return $viewModel;
+            }
         }
         
         $this->viewModel = new ViewModel();
@@ -39,7 +41,9 @@ class ShowHandler extends AbstractDataHandler
         $this->setupTemplate();
         $this->setupTitle();
         
-        $this->recacheAgent->storeViewModel($this->viewModel, 'show', $this->entityNamespace, $this->entityId);
+        if ($this->useCache) {
+            $this->recacheAgent->storeViewModel($this->viewModel, 'show', $this->entityNamespace, $this->entityId);
+        }
         
         return $this->viewModel;
     }

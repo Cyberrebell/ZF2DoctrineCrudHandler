@@ -76,11 +76,14 @@ class FormGenerator
     public function __construct(
         \Doctrine\Common\Persistence\ObjectManager $objectManager,
         $entityNamespace,
-        \Zend\Cache\Storage\Adapter\AbstractAdapter $storageAdapter
+        $storageAdapter
     ) {
         $this->objectManager = $objectManager;
         $this->entityNamespace = $entityNamespace;
-        $this->storageAdapter = $storageAdapter;
+        
+        if ($storageAdapter === null) {
+            $this->storageAdapter = $storageAdapter;
+        }
     }
     
     /**
@@ -242,7 +245,10 @@ class FormGenerator
             $element = new Radio($property->getName());
         }
         
-        $options = $this->getValueOptionsFromEntity($property->getTargetEntity());
+        $options = array_merge(
+            [0 => '-none-'],
+            $this->getValueOptionsFromEntity($property->getTargetEntity())
+        );
         $element->setValueOptions($options);
         
         $element->setLabel($property->getName());

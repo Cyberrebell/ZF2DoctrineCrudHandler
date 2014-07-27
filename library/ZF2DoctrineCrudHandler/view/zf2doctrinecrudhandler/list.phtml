@@ -17,6 +17,13 @@
         </tr>
     </thead>
     <tbody>
+        <?php if (empty($entitiesData)): ?>
+            <tr>
+                <?php foreach ($entityProperties as $property): ?>
+                <td></td>
+                <?php endforeach; ?>
+            </tr>
+        <?php else: ?>
         <?php foreach ($entitiesData as $entityId => $entityData): ?>
         <tr>
             <?php foreach ($entityData as $value): ?>
@@ -36,5 +43,6 @@
             </td>
         </tr>
         <?php endforeach; ?>
+        <?php endif; ?>
     </tbody>
 </table>

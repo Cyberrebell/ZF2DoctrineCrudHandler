@@ -38,9 +38,11 @@ class AddHandler extends AbstractFormHandler
      */
     public function getViewModel()
     {
-        $viewModel = $this->recacheAgent->getViewModel('add', $this->entityNamespace, '');
-        if ($viewModel) {
-            return $viewModel;
+        if ($this->useCache) {
+            $viewModel = $this->recacheAgent->getViewModel('add', $this->entityNamespace, '');
+            if ($viewModel) {
+                return $viewModel;
+            }
         }
         
         $this->viewModel = new ViewModel();
@@ -53,7 +55,9 @@ class AddHandler extends AbstractFormHandler
         $this->setupTemplate();
         $this->setupTitle();
         
-        $this->recacheAgent->storeViewModel($this->viewModel, 'add', $this->entityNamespace, '');
+        if ($this->useCache) {
+            $this->recacheAgent->storeViewModel($this->viewModel, 'add', $this->entityNamespace, '');
+        }
         
         return $this->viewModel;
     }

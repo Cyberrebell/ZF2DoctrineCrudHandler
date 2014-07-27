@@ -32,33 +32,6 @@ class DeleteHandler extends AbstractCrudHandler
     protected $entityId;
     
     /**
-     * Constructor for DeleteHandler
-     * 
-     * @param \Zend\ServiceManager\ServiceManager $sm              ServiceManager
-     * @param string                              $entityNamespace Namespace of Entity to do operations for
-     */
-    public function __construct(
-        \Zend\ServiceManager\ServiceManager $sm,
-        $entityNamespace
-    ) {
-        $this->serviceManager = $sm;
-        $cfg = $this->serviceManager->get('Config');
-        if (array_key_exists('crudhandler', $cfg)) {
-            $crudCfg = $cfg['crudhandler'];
-            if (array_key_exists('objectManager', $crudCfg)) {
-                $this->entityNamespace = $entityNamespace;
-                $this->objectManager = $this->serviceManager->get($crudCfg['objectManager']);
-                $this->storageAdapter = $this->serviceManager->get($crudCfg['cache']);
-                $this->initRecacheAgent();
-            } else {
-                throw new \Exception('"objectManager" must be configurated in module.config -> "crudhandler"!');
-            }
-        } else {
-            throw new \Exception('"crudhandler" is not configurated in module.config!');
-        }
-    }
-    
-    /**
      * Set the id of entity to delete
      * 
      * @param int $id Entity-Id
