@@ -64,13 +64,18 @@ class EditHandler extends AbstractFormHandler
         $form = $this->formGenerator->getForm();
         $this->viewModel->setVariable('form', $form);
         
-        RequestHandler::handleEdit(
-            $this->objectManager,
-            $this->entityNamespace,
-            $form,
-            $this->request,
-            $this->entityId
-        );
+        if (
+            RequestHandler::handleEdit(
+                $this->objectManager,
+                $this->entityNamespace,
+                $form,
+                $this->request,
+                $this->entityId
+            )
+            && $this->redirect != null
+        ) {
+            return $this->getRedirect();
+        }
         
         $this->setupTemplate();
         $this->setupTitle();

@@ -31,6 +31,8 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
 {
     protected $formGenerator;
     protected $request;
+    protected $redirect;
+    protected $redirectRoute;
     
     /**
      * Set Request which may be POST
@@ -93,7 +95,25 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
         $this->formGenerator->setPasswordProperties($passwordProperties);
     }
     
-    protected function prepare() {
+    /**
+     * Set the redirect that will be used if data is saved successfully
+     * 
+     * @param \Zend\Mvc\Controller\Plugin\Redirect $redirect
+     * @param string $route
+     */
+    public function setSuccessRedirect(\Zend\Mvc\Controller\Plugin\Redirect $redirect, $route)
+    {
+        $this->redirect = $redirect;
+        $this->redirectRoute = $route;
+    }
+    
+    protected function getRedirect()
+    {
+        return $this->redirect->toRoute($this->redirectRoute);
+    }
+    
+    protected function prepare()
+    {
         $this->formGenerator = new FormGenerator($this->objectManager, $this->entityNamespace, $this->storageAdapter);
     }
 }

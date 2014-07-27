@@ -50,7 +50,9 @@ class AddHandler extends AbstractFormHandler
         $form = $this->formGenerator->getForm();
         $this->viewModel->setVariable('form', $form);
         
-        RequestHandler::handleAdd($this->objectManager, $this->entityNamespace, $form, $this->request);
+        if (RequestHandler::handleAdd($this->objectManager, $this->entityNamespace, $form, $this->request) && $this->redirect != null) {
+            return $this->getRedirect();
+        }
         
         $this->setupTemplate();
         $this->setupTitle();
