@@ -87,6 +87,9 @@ abstract class AbstractCrudHandler
     protected $entityFilter;
     
     protected $useCache;
+
+    protected $redirect;
+    protected $redirectRoute;
     
     /**
      * Constructor for AbstractCrudHandler
@@ -191,35 +194,30 @@ abstract class AbstractCrudHandler
     {
         $this->entityFilter = $filter;
     }
+
+    /**
+     * Set the redirect that will be used if data is saved successfully
+     *
+     * @param \Zend\Mvc\Controller\Plugin\Redirect $redirect
+     * @param string $route
+     */
+    public function setSuccessRedirect(\Zend\Mvc\Controller\Plugin\Redirect $redirect, $route)
+    {
+        $this->redirect = $redirect;
+        $this->redirectRoute = $route;
+    }
+    
+    protected function getRedirect()
+    {
+        return $this->redirect->toRoute($this->redirectRoute);
+    }
     
     protected function prepare() {
         
     }
     
     /**
-     * Use given entityFilter to get only allowed
-     * 
-     * @param array $entities Input Entities
-     * 
-     * @return array $entities filtered by filterfunction
-     */
-    protected function filterEntities($entities)
-    {
-        if ($this->entityFilter !== null) {
-            $filter = $this->entityFilter;
-            $filteredEntities = [];
-            foreach ($entities as $entity) {
-                if ($filter($entity)) {
-                    $filteredEntities[] = $entity;
-                }
-            }
-            return $filteredEntities;
-        } else {
-            return $entities;
-        }
-    }
-    
-    /**
+     * Use given entityFilter to check if entity is allowed
      * 
      * @param object $entity Doctrine-Entity
      * 
@@ -227,10 +225,10 @@ abstract class AbstractCrudHandler
      */
     protected function filterEntity($entity) {
         $filter = $this->entityFilter;
-        if ($filter($entity)) {
-            return $entity;
-        } else {
+        if ($filter !== null && $filter($entity) === false) {
             return false;
+        } else {
+            return $entity;
         }
     }
 

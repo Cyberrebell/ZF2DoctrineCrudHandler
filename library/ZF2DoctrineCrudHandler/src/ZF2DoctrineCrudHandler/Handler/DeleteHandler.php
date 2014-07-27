@@ -50,6 +50,8 @@ class DeleteHandler extends AbstractCrudHandler
      */
     public function getViewModel()
     {
-        return RequestHandler::handleDelete($this->objectManager, $this->entityNamespace, $this->entityId);
+        if (RequestHandler::handleDelete($this->objectManager, $this->entityNamespace, $this->entityId, $this->entityFilter) && $this->redirect != null) {
+            return $this->getRedirect();
+        }
     }
 }

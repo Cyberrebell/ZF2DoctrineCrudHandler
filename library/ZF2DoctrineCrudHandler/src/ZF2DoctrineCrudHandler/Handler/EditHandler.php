@@ -70,7 +70,8 @@ class EditHandler extends AbstractFormHandler
                 $this->entityNamespace,
                 $form,
                 $this->request,
-                $this->entityId
+                $this->entityId,
+                $this->entityFilter
             )
             && $this->redirect != null
         ) {
