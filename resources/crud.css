@@ -4,20 +4,24 @@ label{
 }
 
 label > span{
-	font-weight:bold;
+    font-weight:bold;
 }
 
 label > div{
-	border:1px #a0a0a0 solid;
+    border:1px #a0a0a0 solid;
     border-radius:3px;
     padding:4px;
 }
 
+label > div > a{
+    color:#d8d8d8;
+}
+
 .crud-list{
-	border:1px black solid;
+    border:1px black solid;
     border-radius:3px;
     text-align:right;
-	width:100%;
+    width:100%;
 }
 
 .crud-list th{
@@ -26,7 +30,7 @@ label > div{
 }
 
 .crudlist-iconcol{
-	width:90px;
+    width:90px;
 }
 
 .crud-list td{
@@ -36,7 +40,7 @@ label > div{
 }
 
 .crudlist-icon{
-	background-repeat:no-repeat;
+    background-repeat:no-repeat;
     background-size:100%;
     float:right;
     height:18px;
