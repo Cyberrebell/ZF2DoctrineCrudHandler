@@ -63,7 +63,8 @@ abstract class AbstractDataHandler extends AbstractCrudHandler
                 
                 if (array_key_exists($name, $this->propertiesOutputs)) {//use injected output Closure
                     $function = $this->propertiesOutputs[$name];
-                    $value = $function($value);
+                    $viewHelperManager = $this->serviceManager->get('viewhelpermanager');
+                    $value = $function($viewHelperManager, $value);
                 } else {
                     if ($value === null) {
                         $dataToDisplay[$name] = null;
