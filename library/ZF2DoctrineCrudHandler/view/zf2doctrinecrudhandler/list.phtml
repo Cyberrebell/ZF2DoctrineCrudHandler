@@ -9,8 +9,8 @@
             <?php endforeach; ?>
             <th class="crudlist-iconcol">
                 <?php foreach ($listHeadIcons as $icon => $ref): ?>
-                    <a href="<?php echo $ref; ?>">
-                        <img class="<?php echo $icon; ?>-icon crudlist-icon">
+                    <a title="<?php echo $this->translate($icon); ?>" class="<?php echo $icon; ?>-icon crudlist-icon" href="<?php echo $ref; ?>">
+                        <span></span>
                     </a>
                 <?php endforeach; ?>
             </th>
@@ -36,8 +36,8 @@
             <?php endforeach; ?>
             <td>
                 <?php foreach (array_reverse($listIcons) as $icon => $ref): ?>
-                    <a href="<?php echo $ref . '/' . $entityId; ?>">
-                        <img class="<?php echo $icon; ?>-icon crudlist-icon">
+                    <a title="<?php echo $this->translate($icon); ?>" class="<?php echo $icon; ?>-icon crudlist-icon" href="<?php echo $ref . '/' . $entityId; ?>">
+                        <span></span>
                     </a>
                 <?php endforeach; ?>
             </td>
