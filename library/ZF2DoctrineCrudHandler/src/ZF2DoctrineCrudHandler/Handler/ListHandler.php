@@ -43,7 +43,10 @@ class ListHandler extends AbstractDataHandler
         
         $entitiesData = [];
         foreach ($entities as $entity) {
-            $entitiesData[$entity->getId()] = $this->getEntityData($entity->getId());
+            $entityData = $this->getEntityData($entity->getId());
+            if ($entityData !== false && $entityData !== null) {
+                $entitiesData[$entity->getId()] = $entityData;
+            }
         }
         
         $this->viewModel->setVariable('entitiesData', $entitiesData);
