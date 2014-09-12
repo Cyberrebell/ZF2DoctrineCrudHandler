@@ -245,10 +245,7 @@ class FormGenerator
             $element = new Radio($property->getName());
         }
         
-        $options = array_merge(
-            [0 => '-none-'],
-            $this->getValueOptionsFromEntity($property->getTargetEntity())
-        );
+        $options = [0 => '-none-'] + $this->getValueOptionsFromEntity($property->getTargetEntity());
         $element->setValueOptions($options);
         
         $element->setLabel($property->getName());
