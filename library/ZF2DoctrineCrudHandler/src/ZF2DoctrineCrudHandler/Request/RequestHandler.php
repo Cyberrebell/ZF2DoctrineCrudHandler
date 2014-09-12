@@ -149,6 +149,8 @@ class RequestHandler
                             $multiValues[] = $refEntity->getId();
                         }
                         $value = $multiValues;
+                    } else if ($properties[$name]->getType() == Property::PROPERTY_TYPE_TOONE) {
+                        $value = $value->getId();
                     }
                     $element->setValue($value);
                 }
