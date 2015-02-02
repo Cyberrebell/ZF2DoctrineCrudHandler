@@ -12,7 +12,6 @@ class ShowHandler extends AbstractDataHandler
     
     /**
      * @param int $id
-     * 
      * @return null
      */
     public function setEntityId($id)

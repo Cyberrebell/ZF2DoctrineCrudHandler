@@ -70,9 +70,7 @@ class ListHandler extends AbstractDataHandler
     }
     
     /**
-     * 
      * @param array $criteria
-     * 
      * @return null
      */
     public function setCriteria(array $criteria)
@@ -84,7 +82,6 @@ class ListHandler extends AbstractDataHandler
      * Add icons like ['show' => '/showuser', 'edit' => '/edituser', 'delete' => '/deleteuser'] to list
      * 
      * @param array $icons
-     * 
      * @return null
      */
     public function setIcons(array $icons)
@@ -96,7 +93,6 @@ class ListHandler extends AbstractDataHandler
      * select icons to display only in <thead>
      * 
      * @param array $icons
-     * 
      * @return null
      */
     public function setHeadIcons(array $icons)

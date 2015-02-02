@@ -1,31 +1,14 @@
 <?php
-/**
- * File containing AbstractFormHandler class
- *
- * PHP version 5
- *
- * @category  ZF2DoctrineCrudHandler
- * @package   ZF2DoctrineCrudHandler\Handler
- * @author    Cyberrebell <cyberrebell@web.de>
- * @copyright 2014 - 2014 Cyberrebell
- * @license   http://www.gnu.org/licenses/gpl-3.0 GPL-3.0
- * @version   GIT: <git_id>
- * @link      https://github.com/Cyberrebell/ZF2DoctrineCrudHandler
- */
 
 namespace ZF2DoctrineCrudHandler\Handler;
 
-use ZF2DoctrineCrudHandler\Form\FormGenerator;
+use DoctrineEntityFormGenerator\FormGenerator;
 
 /**
  * Abstract Class for Form-Crud-Handlers
  * Offers some configuration options Form-Handlers need
  *
- * @category ZF2DoctrineCrudHandler
- * @package  ZF2DoctrineCrudHandler\Handler
  * @author   Cyberrebell <cyberrebell@web.de>
- * @license  http://www.gnu.org/licenses/gpl-3.0 GPL-3.0
- * @link     https://github.com/Cyberrebell/ZF2DoctrineCrudHandler
  */
 abstract class AbstractFormHandler extends AbstractCrudHandler
 {
@@ -39,7 +22,6 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
      * needed to handle POST's
      * 
      * @param \Zend\Http\Request $request Request of Controller
-     * 
      * @return null
      */
     public function setRequest(\Zend\Http\Request $request)
@@ -51,7 +33,6 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
      * Blacklist Entity-Properties for form-generation
      * 
      * @param array:string $blacklist ['password', 'registrationDate']
-     * 
      * @return null
      */
     public function setPropertyBlacklist(array $blacklist)
@@ -63,7 +44,6 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
      * Whitelist Entity-Properties for form-generation
      * 
      * @param array $whitelist ['name', 'age']
-     * 
      * @return null
      */
     public function setPropertyWhitelist(array $whitelist)
@@ -75,7 +55,6 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
      * Set Entity-Properties to be email inputs in form-generation
      * 
      * @param array:string $emailProperties ['admin@mail.com']
-     * 
      * @return null
      */
     public function setEmailProperties(array $emailProperties)
@@ -87,7 +66,6 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
      * Set Entity-Properties to be password inputs in form-generation
      * 
      * @param array $passwordProperties ['password']
-     * 
      * @return null
      */
     public function setPasswordProperties(array $passwordProperties)

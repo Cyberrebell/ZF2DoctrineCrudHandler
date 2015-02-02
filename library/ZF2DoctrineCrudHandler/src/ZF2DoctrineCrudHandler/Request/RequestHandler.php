@@ -2,8 +2,8 @@
 
 namespace ZF2DoctrineCrudHandler\Request;
 
-use ZF2DoctrineCrudHandler\Reader\EntityReader;
-use ZF2DoctrineCrudHandler\Reader\Property;
+use DoctrineEntityReader\EntityReader;
+use DoctrineEntityReader\Property;
 
 class RequestHandler
 {
