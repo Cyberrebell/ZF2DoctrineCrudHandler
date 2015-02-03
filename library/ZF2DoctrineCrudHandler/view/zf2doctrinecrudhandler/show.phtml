@@ -3,9 +3,6 @@
 <div>
     <label>
         <span><?php echo $this->translate($label); ?>:</span>
-        <?php if (gettype($data) == 'boolean' || gettype($data) == 'NULL') {
-            $data = ($data == true) ? 'yes' : 'no';
-        } ?>
         <div><?php echo $this->translate($data); ?></div>
     </label>
 </div>

@@ -42,31 +42,7 @@ abstract class AbstractDataHandler extends AbstractCrudHandler
 				} else {
 					$value = $entity->$getter();
 				}
-				switch ($property->getType()) {
-					case Property::PROPERTY_TYPE_COLUMN:
-						if ($value instanceof \DateTime) {
-							$value = $value->format('d.M.Y H:m:s');
-						}
-						break;
-					case Property::PROPERTY_TYPE_REF_ONE:
-						if ($value) {
-							$targetEntity = $property->getTargetEntity();
-							$targetPropertsGetter = 'get' . ucfirst($targetEntity::DISPLAY_NAME_PROPERTY);
-							$value = $value->$targetPropertsGetter();
-						}
-						break;
-					case Property::PROPERTY_TYPE_REF_MANY:
-						$targetEntity = $property->getTargetEntity();
-						$targetPropertsGetter = 'get' . ucfirst($targetEntity::DISPLAY_NAME_PROPERTY);
-						$listString = '';
-						foreach ($value as $targetEntity) {
-							$listString .= $targetEntity->$targetPropertsGetter() . ', ';
-						}
-						$value = substr($listString, 0, -2);
-						break;
-					default:
-						break;
-				}
+				$value = $property->ensurePrintableValue($value);
 				$dataToDisplay[$name] = $value;
 			}
 			return $dataToDisplay;
