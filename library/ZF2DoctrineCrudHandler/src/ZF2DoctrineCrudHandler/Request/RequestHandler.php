@@ -131,7 +131,11 @@ class RequestHandler
 					$name = $element->getAttribute('name');
 					$getter = 'get' . ucfirst($name);
 					$value = $entity->$getter();
-					if ($properties[$name]->getType() == Property::PROPERTY_TYPE_REF_MANY) {
+					if ($properties[$name]->getType() == Property::PROPERTY_TYPE_COLUMN) {
+						if ($value instanceof \DateTime) {
+							$value = $value->format('d.M.Y H:m:s');
+						}
+					} else if ($properties[$name]->getType() == Property::PROPERTY_TYPE_REF_MANY) {
 						if ($value === null) {
 							continue;
 						}

@@ -19,7 +19,9 @@
     "require": {
         "php": ">=5.4.4",
         "zendframework/zend-view": "2.*",
-        "cyberrebell/zf2validator-builder": "dev-master"
+        "cyberrebell/zf2validator-builder": "dev-master",
+        "cyberrebell/doctrine-entity-reader": "dev-master",
+        "cyberrebell/doctrine-entity-form-generator": "dev-master"
     },
     "autoload": {
         "psr-0": {

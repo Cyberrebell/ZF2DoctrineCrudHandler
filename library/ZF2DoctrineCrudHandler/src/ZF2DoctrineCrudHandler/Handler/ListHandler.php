@@ -17,7 +17,7 @@ class ListHandler extends AbstractDataHandler
 	 * (non-PHPdoc)
 	 * @see \Portalbasics\Model\CrudList\AbstractCrudHandler::getViewModel()
 	 */
-	public function getViewModel() {
+	function getViewModel() {
 		if ($this->useCache) {
 			$viewModel = $this->recacheAgent->getViewModel('list', $this->entityNamespace, '');
 			if ($viewModel) {
@@ -61,7 +61,7 @@ class ListHandler extends AbstractDataHandler
 	 * @param array $criteria
 	 * @return null
 	 */
-	public function setCriteria(array $criteria) {
+	function setCriteria(array $criteria) {
 		$this->criteria = $criteria;
 	}
 	
@@ -71,7 +71,7 @@ class ListHandler extends AbstractDataHandler
 	 * @param array $icons
 	 * @return null
 	 */
-	public function setIcons(array $icons) {
+	function setIcons(array $icons) {
 		$this->listIcons = $icons;
 	}
 	
@@ -81,7 +81,7 @@ class ListHandler extends AbstractDataHandler
 	 * @param array $icons
 	 * @return null
 	 */
-	public function setHeadIcons(array $icons) {
+	function setHeadIcons(array $icons) {
 		$this->listHeadIcons = $icons;
 	}
 
