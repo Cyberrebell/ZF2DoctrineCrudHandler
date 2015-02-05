@@ -16,6 +16,7 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
 	protected $request;
 	protected $redirect;
 	protected $redirectRoute;
+	protected $params;
 	
 	/**
 	 * Set Request which may be POST
@@ -74,13 +75,14 @@ abstract class AbstractFormHandler extends AbstractCrudHandler
 	 * @param \Zend\Mvc\Controller\Plugin\Redirect $redirect
 	 * @param string $route
 	 */
-	public function setSuccessRedirect(\Zend\Mvc\Controller\Plugin\Redirect $redirect, $route) {
+	public function setSuccessRedirect(\Zend\Mvc\Controller\Plugin\Redirect $redirect, $route, $params = []) {
 		$this->redirect = $redirect;
 		$this->redirectRoute = $route;
+		$this->params = $params;
 	}
 	
 	protected function getRedirect() {
-		return $this->redirect->toRoute($this->redirectRoute);
+		return $this->redirect->toRoute($this->redirectRoute, $this->params);
 	}
 	
 	protected function prepare() {
