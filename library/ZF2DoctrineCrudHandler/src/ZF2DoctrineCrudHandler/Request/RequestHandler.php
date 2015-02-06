@@ -18,46 +18,8 @@ class RequestHandler
 	 */
 	public static function handleAdd(ObjectManager $objectManager, $entityNamespace, Form $form, Request $request) {
 		if ($formData = self::getValidData($form, $request)) {
-			$properties = EntityReader::getProperties($entityNamespace);
 			$entity = new $entityNamespace();
-			foreach ($formData as $elementName => $elementData) {
-				if (
-					$elementName == 'id'
-					|| $form->get($elementName)->getAttribute('type') == 'submit'
-					|| !array_key_exists($elementName, $properties)
-				) {
-					continue;
-				}
-				
-				switch ($properties[$elementName]->getType()) {
-					case Property::PROPERTY_TYPE_COLUMN:
-						$value = $elementData;
-						$setter = 'set' . ucfirst($elementName);
-						$entity->$setter($value);
-						break;
-					case Property::PROPERTY_TYPE_REF_ONE:
-						$dbResult = $objectManager->getRepository($properties[$elementName]->getTargetEntity())->find($elementData);
-						if ($dbResult === null) {
-							continue 2;
-						}
-						$value = $dbResult;
-						$setter = 'set' . ucfirst($elementName);
-						$entity->$setter($value);
-						break;
-					case Property::PROPERTY_TYPE_REF_MANY:
-						$dbResult = $objectManager->getRepository($properties[$elementName]->getTargetEntity())->findById($elementData);
-						if ($dbResult === null) {
-							continue 2;
-						}
-						$adder = 'add' . ucfirst(substr($elementName, 0, -1));
-						foreach ($dbResult as $result) {
-							$entity->$adder($result);
-						}
-						break;
-					default:
-						continue 2;
-				}
-			}
+			$entity = self::populateEntity($entity, $objectManager, $form, $formData);
 			$objectManager->persist($entity);
 			$objectManager->flush();
 			return true;
@@ -75,44 +37,12 @@ class RequestHandler
 	 */
 	public static function handleEdit(ObjectManager $objectManager, $entityNamespace, Form $form, Request $request, $entityId, $filter) {
 		if ($formData = self::getValidData($form, $request)) {
-			$properties = EntityReader::getProperties($entityNamespace);
 			$entity = $objectManager->getRepository($entityNamespace)->find($entityId);
 			$entity = self::filterEntity($filter, $entity);
 			if ($entity === null || $entity === false) {//check if entity with requested id exists
 				return false;
 			}
-			foreach ($formData as $elementName => $elementData) {
-				if (
-					$elementName == 'id'
-					|| $form->get($elementName)->getAttribute('type') == 'submit'
-					|| !array_key_exists($elementName, $properties)
-				) {
-					continue;
-				}
-				$setter = 'set' . ucfirst($elementName);
-				switch ($properties[$elementName]->getType()) {
-					case Property::PROPERTY_TYPE_COLUMN:
-						$value = $elementData;
-						break;
-					case Property::PROPERTY_TYPE_REF_ONE:
-						$dbResult = $objectManager->getRepository($properties[$elementName]->getTargetEntity())->find($elementData);
-						if ($dbResult === null) {
-							continue 2;
-						}
-						$value = $dbResult;
-						break;
-					case Property::PROPERTY_TYPE_REF_MANY:
-						$dbResult = $objectManager->getRepository($properties[$elementName]->getTargetEntity())->findById($elementData);
-						if ($dbResult === null) {
-							continue 2;
-						}
-						$value = $dbResult;
-						break;
-					default:
-						continue 2;
-				}
-				$entity->$setter($value);
-			}
+			$entity = self::populateEntity($entity, $objectManager, $form, $formData);
 			$objectManager->persist($entity);
 			$objectManager->flush();
 			return true;
@@ -184,5 +114,48 @@ class RequestHandler
 		} else {
 			return $entity;
 		}
+	}
+	
+	protected static function populateEntity($entity, ObjectManager $objectManager, Form $form, array $formData) {
+		$properties = EntityReader::getProperties(get_class($entity));
+		foreach ($formData as $elementName => $elementData) {
+			if (
+				$elementName == 'id'
+				|| $form->get($elementName)->getAttribute('type') == 'submit'
+				|| !array_key_exists($elementName, $properties)
+			) {
+				continue;
+			}
+		
+			switch ($properties[$elementName]->getType()) {
+				case Property::PROPERTY_TYPE_COLUMN:
+					$value = $elementData;
+					$setter = 'set' . ucfirst($elementName);
+					$entity->$setter($value);
+					break;
+				case Property::PROPERTY_TYPE_REF_ONE:
+					$dbResult = $objectManager->getRepository($properties[$elementName]->getTargetEntity())->find($elementData);
+					if ($dbResult === null) {
+						continue 2;
+					}
+					$value = $dbResult;
+					$setter = 'set' . ucfirst($elementName);
+					$entity->$setter($value);
+					break;
+				case Property::PROPERTY_TYPE_REF_MANY:
+					$dbResult = $objectManager->getRepository($properties[$elementName]->getTargetEntity())->findById($elementData);
+					if ($dbResult === null) {
+						continue 2;
+					}
+					$adder = 'add' . ucfirst(substr($elementName, 0, -1));
+					foreach ($dbResult as $result) {
+						$entity->$adder($result);
+					}
+					break;
+				default:
+					continue 2;
+			}
+		}
+		return $entity;
 	}
 }
